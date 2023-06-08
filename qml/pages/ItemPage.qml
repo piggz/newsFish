@@ -1,129 +1,94 @@
-import QtQuick 2.0
-import Sailfish.Silica 1.0
-import Sailfish.Silica.theme 1.0
+import QtQuick 2.15
+import QtQuick.Controls 2.15 as Controls
+import org.kde.kirigami 2.20 as Kirigami
 import uk.co.piggz 1.0
 
-Page {
+Kirigami.ScrollablePage {
     id: itempage
     property string feedTitle: ""
+    title: feedTitle
 
-    SilicaListView {
+    ListView {
         id: listView
         model: NewsInterface.itemsModel
-        anchors.fill: parent
-        header: PageHeader {
-            title: feedTitle
-        }
+
         delegate: itemDelegate
-
-
     }
 
     Component {
         id: itemDelegate
 
-        BackgroundItem {
-            width: ListView.view.width
-            height: contentItem.childrenRect.height
-
-            onClicked: {
-                pageStack.push(itemView)
-
-                itemView.title = itemtitle;
-                itemView.body = itembodyhtml;
-                itemView.link = itemlink;
-                itemView.author = itemauthor;
-                itemView.pubdate = timeDifference(new Date(), itempubdate);
-                itemView.unread = itemunread;
-                itemView.starred = itemstarred;
-
-                NewsInterface.setItemRead(itemid, true);
+        Rectangle {
+            id: col
+            width: listView.width
+            height: childrenRect.height
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Kirigami.Theme.backgroundColor }
+                GradientStop { position: 0.8; color: Kirigami.Theme.backgroundColor }
+                GradientStop { position: 1.0; color: Kirigami.Theme.alternateBackgroundColor }
             }
+            MouseArea {
+                width: parent.width
+                height: col.height
 
-            Column {
-                id: colContent
-                height: childrenRect.height
-                spacing: 5
-                x: Theme.paddingLarge
-                width: parent.width - (Theme.paddingLarge * 2)
-
-                Item {
-
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-
-                    height: childrenRect.height
-
-                    Label {
-                        id: txtTitle
-                        text: itemtitle
-                        font.pixelSize: Theme.fontSizeLarge
-                        font.bold: itemunread
-                        anchors.left: parent.left
-                        width: parent.width - 64
+                onClicked: {
+                    var found = false;
+                    for (var idx = 0; idx < pageStack.depth; ++idx) {
+                        if (pageStack.get(idx) === itemView) {
+                            found = true;
+                            console.log("Found itemView in stack");
+                            break;
+                        }
                     }
-
-                    /*
-                    Image {
-                        id: imgStar
-                        anchors.right: parent.right
-                        source: itemstarred ? "../star-filled.png" : "../star-unfilled.png"
-                        width: 64
-                        height: 64
-
+                    if (!found) {
+                        pageStack.push(itemView)
                     }
-                    */
+                    itemView.title = itemtitle;
+                    itemView.body = itembodyhtml;
+                    itemView.link = itemlink;
+                    itemView.author = itemauthor;
+                    itemView.pubdate = timeDifference(new Date(), itempubdate);
+                    itemView.unread = itemunread;
+                    itemView.starred = itemstarred;
+
+                    NewsInterface.setItemRead(itemid, true);
                 }
+            }
+            Column {
+                id: itm
+                spacing: Kirigami.Units.largeSpacing
+                padding: spacing
 
-                Item {
-                    id: titleRow
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                Controls.Label{
+                    text: itemtitle
+                    font.bold: true
+                    width: listView.width - (2* Kirigami.Units.largeSpacing)
+                    elide: Text.ElideRight
+                }
+                Row {
+                    width: listView.width - (2* Kirigami.Units.largeSpacing)
 
-                    height: childrenRect.height
-                    anchors.margins: 0
-
-                    Label {
-                        id: txtAuthor
+                    Controls.Label {
                         text: itemauthor
-                        color: Theme.secondaryHighlightColor
-                        font.pixelSize: Theme.fontSizeSmall
-                        anchors.left: parent.left
-                        width: parent.width / 2
-                        clip: true
-                        wrapMode: Text.WordWrap
+                        width: parent.width / 2 - Kirigami.Units.largeSpacing
                     }
-
-                    Label {
-                        id: txtPubDate
-                        text: timeDifference(new Date(), new Date(itempubdate));
-                        color: Theme.secondaryHighlightColor
-                        font.pixelSize: Theme.fontSizeSmall
-                        anchors.right: parent.right
-                        width: parent.width / 2
-                        clip: true
-                        wrapMode: Text.WordWrap
+                    Controls.Label {
+                        text: itempubdate
+                        width: parent.width / 2 - Kirigami.Units.largeSpacing
                         horizontalAlignment: Text.AlignRight
                     }
                 }
-
-
-                Label {
+                Text {
                     id: txtBody
                     text: itembody
-                    color: Theme.highlightColor
-                    font.pixelSize: Theme.fontSizeExtraSmall
                     wrapMode: Text.Wrap
-                    anchors.left: parent.left
-                    anchors.right: parent.right
                     clip: true
                     maximumLineCount: 3
-
+                    width: listView.width - (2* Kirigami.Units.largeSpacing)
                 }
             }
-
-
         }
+
     }
 }
 

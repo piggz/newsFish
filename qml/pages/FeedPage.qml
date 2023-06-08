@@ -1,90 +1,69 @@
-import QtQuick 2.0
-import Sailfish.Silica 1.0
-import Sailfish.Silica.theme 1.0
+import QtQuick 2.15
+import QtQuick.Controls 2.15 as Controls
+import org.kde.kirigami 2.20 as Kirigami
 import uk.co.piggz 1.0
 
-Page {
+Kirigami.ScrollablePage {
     id: feedpage
+    title: "Feeds"
 
-    BusyIndicator {
-            anchors.centerIn: parent
-            running: NewsInterface.busy
+    actions.main: Kirigami.Action {
+        id: addAction
+        // Name of icon associated with the action
+        icon.name: "view-refresh"
+        // Action text, i18n function returns translated string
+        text: "Sync"
+        // What to do when triggering the action
+        onTriggered: NewsInterface.sync(_ownCloudURL, _username, _password, 10)
+    }
+
+    supportsRefreshing: !NewsInterface.busy
+        onRefreshingChanged: {
+            if (refreshing) {
+                NewsInterface.sync(_ownCloudURL, _username, _password, 10)
+            }
         }
 
-    SilicaListView {
+    ListView {
         id: listView
         model: NewsInterface.feedsModel
-        anchors.fill: parent
-        header: PageHeader {
-            title: "Feeds"
-        }
+
         delegate: feedDelegate
 
-        /*BackgroundItem {
-            Label {
-                x: Theme.paddingLarge
-                text: "Item " + index
-            }
-            onClicked: console.log("Clicked " + index)
-        }*/
-
-        PullDownMenu {
-            MenuItem {
-                text: "Sync"
-                onClicked: {
-                    NewsInterface.sync(_ownCloudURL, _username, _password, 10)
-                }
-            }
+        Controls.BusyIndicator {
+            anchors.centerIn: parent
+            running: NewsInterface.busy
         }
     }
 
     Component {
         id: feedDelegate
 
-        BackgroundItem {
-            width: ListView.view.width
-            height: contentItem.childrenRect.height
+        Kirigami.BasicListItem {
 
             onClicked: {
                 if (!NewsInterface.busy) {
                     console.log("click", feedid);
                     NewsInterface.viewItems(feedid);
-                    pageStack.push(itemPage)
+                    var found = false;
+                    for (var idx = 0; idx < pageStack.depth; ++idx) {
+                        if (pageStack.get(idx) == itemPage) {
+                            found = true;
+                            console.log("Found itemPage in stack");
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        pageStack.push(itemPage)
+                    }
                     itemPage.feedTitle = feedtitle
                 }
             }
 
-            Item {
-                width: parent.width
-                height: childrenRect.height + 10
-                anchors.margins: 5
-
-                Column {
-                    spacing: 5
-                    x: Theme.paddingLarge
-                    Label {
-                        id: txtTitle
-                        text: feedtitle
-                        font.pixelSize: Theme.fontSizeLarge
-                        font.bold: true
-                    }
-
-                    Label {
-                        id: txtLink
-                        text: feedurl
-                        anchors.right: parent.right
-                        color: Theme.secondaryHighlightColor
-                        font.pixelSize: Theme.fontSizeSmall
-                    }
-                }
-
-            }
-
+            label: feedtitle
+            bold: true
+            subtitle: feedurl
         }
     }
 }
-
-
-
-
-

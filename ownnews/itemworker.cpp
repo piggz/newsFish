@@ -6,17 +6,22 @@
 #include <QSqlError>
 #include <QDebug>
 #include "json.h"
+#include <QSqlDatabase>
 
 
 ItemWorker::ItemWorker(QSqlDatabase *db, const QByteArray &json, QObject *parent) :
     QObject(parent)
 {
-    m_db = db;
+   // m_db = db;
+
     m_json = json;
 }
 
 void ItemWorker::process()
 {
+    m_db = QSqlDatabase::addDatabase("QSQLITE");
+    m_db.setDatabaseName("ownnews.sqlite");
+
     parseItems();
     emit finished();
 }
@@ -42,7 +47,7 @@ void ItemWorker::parseItems()
 
 void ItemWorker::addItem(int id, int feedid, const QString &title, const QString &body, const QString &link, const QString& author, unsigned int pubdate, bool unread, bool starred, const QString& guid, const QString& guidhash)
 {
-    if (m_db->isOpen()) {
+    if (m_db.open()) {
         QSqlQuery qry;
         qry.prepare("INSERT OR REPLACE INTO items(id, feedid, title, body, link, author, pubdate, unread, starred, guid, guidhash) VALUES(:id, :feedid, :title, :body, :link, :author, :pubdate, :unread, :starred, :guid, :guidhash)");
         qry.bindValue(":id", id);

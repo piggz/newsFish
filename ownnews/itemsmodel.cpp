@@ -19,6 +19,7 @@ ItemsModel::ItemsModel(QObject *parent) : QAbstractListModel(parent)
 
 QVariant ItemsModel::data(const QModelIndex &index, int role) const
 {
+    qDebug() << Q_FUNC_INFO << index << role;
     if (index.row() < m_items.count()) {
         if (role == ItemId) {
             return m_items.at(index.row())["id"];
@@ -52,11 +53,15 @@ QVariant ItemsModel::data(const QModelIndex &index, int role) const
 
 int ItemsModel::rowCount(const QModelIndex &parent) const
 {
+    qDebug() << Q_FUNC_INFO << m_items.count();
+
     return m_items.count();
 }
 
 void ItemsModel::parseItems(const QByteArray &json)
 {
+    qDebug() << json;
+
     m_items.clear();
 
     QThread* thread = new QThread;
@@ -106,6 +111,8 @@ void ItemsModel::setDatabase(QSqlDatabase *db)
 
 void ItemsModel::setFeed(int feedId)
 {
+    qDebug() << Q_FUNC_INFO <<  m_db->isOpen();
+
     if (m_db->isOpen()) {
         QSqlQuery qry;
         qry.prepare("SELECT id, feedid, title, guid, guidhash, body, link, author, pubdate, unread, starred FROM items WHERE feedid = :fid ORDER BY pubdate DESC");
@@ -147,6 +154,7 @@ void ItemsModel::setFeed(int feedId)
             endResetModel();
         }
     }
+    //qDebug() << m_items;
 }
 
 void ItemsModel::recreateTable()

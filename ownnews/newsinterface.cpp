@@ -168,7 +168,10 @@ void NewsInterface::getItems(int feedId)
 #endif
     qDebug() << url;
 
-    QNetworkReply *reply = m_networkManager->get(QNetworkRequest(url));
+    QNetworkRequest r(url);
+    addAuthHeader(&r);
+
+    QNetworkReply *reply = m_networkManager->get(r);
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply, SLOT(ignoreSslErrors()));
 }
 

@@ -9,17 +9,13 @@
 TARGET = newsFish
 VERSION = 0.2
 
-QT += declarative
-
-CONFIG += sailfishapp
+QT += quick
 
 SOURCES += src/newsFish.cpp \
     src/Helper.cpp
 
 OTHER_FILES += qml/newsFish.qml \
     qml/cover/CoverPage.qml \
-    qml/pages/FirstPage.qml \
-    qml/pages/SecondPage.qml \
     rpm/newsFish.spec \
     rpm/newsFish.yaml \
     newsFish.desktop \
@@ -32,3 +28,16 @@ include(ownnews/ownnews.pri)
 
 HEADERS += \
     src/Helper.h
+
+# Default rules for deployment.
+target.path = /usr/bin
+desktop.path  = /usr/share/applications
+desktop.files = *.desktop
+
+icons.path    = /usr/share/icons/hicolor/86x86/apps/
+icons.files   = sample-sfos-qqc2.png
+
+qml.path    = /usr/share/$$TARGET/
+qml.files   = qml/
+
+INSTALLS += target desktop icons qml

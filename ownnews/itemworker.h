@@ -2,6 +2,7 @@
 #define ITEMWORKER_H
 
 #include <QObject>
+#include <QSqlDatabase>
 
 class QSqlDatabase;
 
@@ -23,7 +24,7 @@ private:
     void parseItems();
     void addItem(int id, int feedid, const QString &title, const QString &body, const QString &link, const QString& author, unsigned int pubdate, bool unread, bool starred, const QString& guid, const QString& guidhash);
 
-    QSqlDatabase *m_db;
+    QSqlDatabase m_db;
     QByteArray m_json;
 };
 
