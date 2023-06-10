@@ -19,34 +19,26 @@ Group:      Qt/Qt
 License:    LICENSE
 URL:        http://example.org/
 Source0:    %{name}-%{version}.tar.bz2
-Source100:  newsFish.yaml
-Requires:   sailfishsilica-qt5 >= 0.10.9
-BuildRequires:  pkgconfig(Qt5Quick)
-BuildRequires:  pkgconfig(Qt5Qml)
-BuildRequires:  pkgconfig(Qt5Core)
-BuildRequires:  pkgconfig(sailfishapp) >= 0.0.10
+Requires:       qt-runner
+Requires:       opt-qt5-qtwayland >= 5.15.8
+Requires:       opt-qt5-qtquickcontrols2 >= 5.15.8
+Requires:       opt-qt5-qtwayland >= 5.15.8
+Requires:       opt-qt5-sfos-maliit-platforminputcontext
+BuildRequires:  opt-qt5-qtdeclarative-devel >= 5.15.8
+BuildRequires:  opt-qt5-qtquickcontrols2-devel >= 5.15.8
 BuildRequires:  desktop-file-utils
+%{?opt_qt5_default_filter}
 
 %description
 Short description of my SailfishOS Application
 
 
 %prep
-%setup -q -n %{name}-%{version}
-
-# >> setup
-# << setup
+%autosetup -n %{name}-%{version}
 
 %build
-# >> build pre
-# << build pre
-
-%qtc_qmake5 
-
-%qtc_make %{?_smp_mflags}
-
-# >> build post
-# << build post
+%{opt_qmake_qt5}
+%make_build
 
 %install
 rm -rf %{buildroot}
@@ -61,15 +53,15 @@ desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
    %{buildroot}%{_datadir}/applications/*.desktop
 
+mkdir -p %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/
+cp newsFish.png %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/
+
 %files
 %defattr(-,root,root,-)
 %{_bindir}
 %{_datadir}/%{name}/qml
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/86x86/apps/%{name}.png
-/usr/bin
-/usr/share/newsFish
-/usr/share/applications
-/usr/share/icons/hicolor/86x86/apps
+
 # >> files
 # << files

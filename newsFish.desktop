@@ -1,7 +1,10 @@
 [Desktop Entry]
 Type=Application
-X-Nemo-Application-Type=silica-qt5
-Name=newsFish
+X-Nemo-Application-Type=generic
 Icon=newsFish
-Exec=newsFish
+Exec=qt-runner /usr/bin/newsFish
+Name=newsFish
+X-Nemo-Single-Instance=no
 
+[X-Sailjail]
+Sandboxing=Disabled
