@@ -30,8 +30,7 @@ BuildRequires:  desktop-file-utils
 %{?opt_qt5_default_filter}
 
 %description
-Short description of my SailfishOS Application
-
+Offline news reader for Kirigami and Next Cloud
 
 %prep
 %autosetup -n %{name}-%{version}
@@ -42,12 +41,7 @@ Short description of my SailfishOS Application
 
 %install
 rm -rf %{buildroot}
-# >> install pre
-# << install pre
-%qmake5_install
-
-# >> install post
-# << install post
+make DESTDIR=%{buildroot} install
 
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
@@ -62,6 +56,3 @@ cp newsFish.png %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/
 %{_datadir}/%{name}/qml
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/86x86/apps/%{name}.png
-
-# >> files
-# << files
