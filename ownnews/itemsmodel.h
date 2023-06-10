@@ -1,11 +1,9 @@
-#ifndef ITEMSMODEL_H
-#define ITEMSMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
 #include <QList>
-#include <QVariantMap>
 #include <QSqlDatabase>
-#include <QMetaType>
+#include <QDateTime>
 
 class ItemsModel : public QAbstractListModel
 {
@@ -26,19 +24,17 @@ public:
         ItemStarred
     };
 
-    explicit ItemsModel(QObject *parent = 0);
-    
-    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    virtual QHash<int, QByteArray> roleNames() const;
+    explicit ItemsModel(QObject *parent = nullptr);
+
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& parent = {}) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
     void parseItems(const QByteArray& json);
     void setDatabase(const QString &dbname);
     void setFeed(int feedId);
     void recreateTable();
     void deleteOldData(int days);
-
-
 
 signals:
     void feedParseComplete();
@@ -48,13 +44,25 @@ private slots:
 
 private:
 
-    QList<QVariantMap> m_items;
+    struct Item {
+        int id;
+        int feedId;
+        QString title;
+        QString guid;
+        QString guidHash;
+        QString body;
+        QString bodyHtml;
+        QString link;
+        QString author;
+        QDateTime publishDate;
+        bool unread;
+        bool starred;
+    };
+
+    QList<Item> m_items;
 
     QSqlDatabase m_db;
     QString m_databaseName;
-
 };
 
 Q_DECLARE_METATYPE(ItemsModel*);
-
-#endif // ITEMSMODEL_H
