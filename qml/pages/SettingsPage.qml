@@ -31,7 +31,7 @@ Kirigami.ScrollablePage {
             anchors.left: parent.left
         }
         Controls.Label {
-            text: "Passowrd:"
+            text: "Password:"
         }
         Controls.TextField {
             id: txtOwnCloudPassword
