@@ -41,7 +41,7 @@ Offline news reader for Kirigami and Next Cloud
 
 %install
 rm -rf %{buildroot}
-make DESTDIR=%{buildroot} install
+make install INSTALL_ROOT=%{buildroot}
 
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
