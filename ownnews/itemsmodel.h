@@ -33,7 +33,7 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     void parseItems(const QByteArray& json);
-    void setDatabase(QSqlDatabase *db);
+    void setDatabase(const QString &dbname);
     void setFeed(int feedId);
     void recreateTable();
     void deleteOldData(int days);
@@ -50,7 +50,8 @@ private:
 
     QList<QVariantMap> m_items;
 
-    QSqlDatabase *m_db;
+    QSqlDatabase m_db;
+    QString m_databaseName;
 
 };
 

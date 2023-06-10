@@ -37,8 +37,8 @@ QList<int> FeedsModel::feedIds()
 
 void FeedsModel::addFeed(int id, const QString &title, const QString &url, const QString &icon)
 {
-    if (m_db->isOpen()) {
-        QSqlQuery qry;
+    if (m_db.isOpen()) {
+        QSqlQuery qry(m_db);
         qry.prepare("INSERT OR REPLACE INTO feeds(id, title, url, icon) VALUES(:id, :title, :url, :icon)");
         qry.bindValue(":id", id);
         qry.bindValue(":title", title);
@@ -57,14 +57,16 @@ void FeedsModel::addFeed(int id, const QString &title, const QString &url, const
             feed["icon"] = icon;
             m_feeds << feed;
         }
+    } else {
+        qDebug() << "Unable to add feed:" << m_db.lastError();
     }
 }
 
 void FeedsModel::loadData()
 {
-    if (m_db->isOpen()) {
+    if (m_db.isOpen()) {
         qDebug() << "Loading feed data";
-        QSqlQuery qry;
+        QSqlQuery qry(m_db);
         qry.prepare("SELECT id, title, url, icon FROM feeds");
 
         bool ret = qry.exec();
@@ -84,6 +86,38 @@ void FeedsModel::loadData()
         }
     }
 }
+
+void FeedsModel::checkFeeds(QList<int> feeds)
+{
+    QList<int> feedsToDelete;
+    if (m_db.isOpen()) {
+        qDebug() << "Loading feed data";
+        QSqlQuery qry(m_db);
+        qry.prepare("SELECT id FROM feeds");
+
+        bool ret = qry.exec();
+        if(!ret) {
+            qDebug() << qry.lastError();
+        } else {
+            while (qry.next()) {
+                //Loop over feeds in the database and check they are in the current list
+                if (!feeds.contains(qry.value(0).toInt())) {
+                    feedsToDelete << qry.value(0).toInt();
+                }
+            }
+            for(int feed : feedsToDelete) {
+                QSqlQuery delQuery(m_db);
+                qry.prepare("DELETE FROM items where feedid = :id");
+                qry.bindValue(":id", feed);
+                qry.exec();
+                qry.prepare("DELETE FROM feeds where id = :id");
+                qry.bindValue(":id", feed);
+                qry.exec();
+            }
+        }
+    }
+}
+
 
 
 QVariant FeedsModel::data(const QModelIndex &index, int role) const
@@ -115,6 +149,7 @@ void FeedsModel::parseFeeds(const QByteArray &json)
 
     qDebug() << json;
     QList<QVariant> feeds = data.toMap()["feeds"].toList();
+    QList<int> feedIds;
 
     qDebug() << "Feed Count" << feeds.length();
 
@@ -124,16 +159,21 @@ void FeedsModel::parseFeeds(const QByteArray &json)
     foreach(QVariant feed, feeds) {
         QVariantMap map = feed.toMap();
         addFeed(map["id"].toInt(), map["title"].toString(), map["url"].toString(), map["faviconLink"].toString());
+        feedIds << map["id"].toInt();
     }
 
+    checkFeeds(feedIds);
+    loadData();
     endResetModel();
 }
 
-void FeedsModel::setDatabase(QSqlDatabase *db)
+void FeedsModel::setDatabase(const QString &database)
 {
-    m_db = db;
+    m_databaseName = database;
+    m_db = QSqlDatabase::addDatabase("QSQLITE", "feed_connection");
+    m_db.setDatabaseName(m_databaseName);
 
-    if (m_db->isOpen()) {
+    if (m_db.open()) {
         QSqlQuery qry;
 
         qry.prepare( "CREATE TABLE IF NOT EXISTS feeds (id INTEGER UNIQUE PRIMARY KEY, title VARCHAR(1024), url VARCHAR(2048), icon VARCHAR(2048))" );

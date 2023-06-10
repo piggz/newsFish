@@ -24,7 +24,7 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     void parseFeeds(const QByteArray& json);
-    void setDatabase(QSqlDatabase *db);
+    void setDatabase(const QString &dbname);
     QList<int> feedIds();
 
 private:
@@ -32,10 +32,11 @@ private:
 
     QList<QVariantMap> m_feeds;
 
-    QSqlDatabase *m_db;
-
+    QSqlDatabase m_db;
+    QString m_databaseName;
     void addFeed(int id, const QString& title, const QString& url, const QString& icon);
     void loadData();
+    void checkFeeds(QList<int> feeds);
 
 };
 

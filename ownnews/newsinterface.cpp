@@ -35,10 +35,10 @@ NewsInterface::NewsInterface(QObject *parent) : QObject(parent)
     m_db.open(); //TODO error checking
 
     m_feedsModel = new FeedsModel(this);
-    m_feedsModel->setDatabase(&m_db);
+    m_feedsModel->setDatabase("ownnews.sqlite");
 
     m_itemsModel = new ItemsModel(this);
-    m_itemsModel->setDatabase(&m_db);
+    m_itemsModel->setDatabase("ownnews.sqlite");
 
     connect(m_itemsModel, SIGNAL(feedParseComplete()), this, SLOT(slotItemProcessFinished()));
 }
@@ -177,7 +177,7 @@ void NewsInterface::getItems(int feedId)
 
 void NewsInterface::syncNextFeed()
 {
-    qDebug() << "Syncing next feed";
+    qDebug() << "Syncing next feed" << m_feedsToSync;
 
     if (!m_feedsToSync.isEmpty()) {
         int id = m_feedsToSync.takeFirst();

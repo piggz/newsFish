@@ -60,12 +60,12 @@ int ItemsModel::rowCount(const QModelIndex &parent) const
 
 void ItemsModel::parseItems(const QByteArray &json)
 {
-    qDebug() << json;
+    qDebug() << Q_FUNC_INFO;
 
     m_items.clear();
 
     QThread* thread = new QThread;
-    ItemWorker* worker = new ItemWorker(m_db, json);
+    ItemWorker* worker = new ItemWorker(json);
     worker->moveToThread(thread);
     //connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
     connect(thread, SIGNAL(started()), worker, SLOT(process()));
@@ -81,11 +81,12 @@ void ItemsModel::slotWorkerFinished()
     emit feedParseComplete();
 }
 
-void ItemsModel::setDatabase(QSqlDatabase *db)
+void ItemsModel::setDatabase(const QString &dbname)
 {
-    m_db = db;
-
-    if (m_db->isOpen()) {
+    m_databaseName = dbname;
+    m_db = QSqlDatabase::addDatabase("QSQLITE", "item_connection");
+    m_db.setDatabaseName(m_databaseName);
+    if (m_db.open()) {
         QSqlQuery qry;
 
         qry.prepare( "CREATE TABLE IF NOT EXISTS items (id INTEGER UNIQUE PRIMARY KEY, \
@@ -111,9 +112,9 @@ void ItemsModel::setDatabase(QSqlDatabase *db)
 
 void ItemsModel::setFeed(int feedId)
 {
-    qDebug() << Q_FUNC_INFO <<  m_db->isOpen();
+    qDebug() << Q_FUNC_INFO <<  m_db.isOpen();
 
-    if (m_db->isOpen()) {
+    if (m_db.isOpen() || m_db.open()) {
         QSqlQuery qry;
         qry.prepare("SELECT id, feedid, title, guid, guidhash, body, link, author, pubdate, unread, starred FROM items WHERE feedid = :fid ORDER BY pubdate DESC");
         qry.bindValue(":fid", feedId);
@@ -153,13 +154,15 @@ void ItemsModel::setFeed(int feedId)
             }
             endResetModel();
         }
+    } else {
+        qDebug() << "Unable to open database:" << m_db.lastError();
     }
     //qDebug() << m_items;
 }
 
 void ItemsModel::recreateTable()
 {
-    if (m_db->isOpen()) {
+    if (m_db.isOpen()) {
         QSqlQuery qry;
 
         qry.prepare( "DROP TABLE items" );
@@ -190,7 +193,7 @@ void ItemsModel::deleteOldData(int days)
 {
     qDebug() << "Deleting data older than " << days << " days";
     
-    if (m_db->isOpen()) {
+    if (m_db.isOpen()) {
         QSqlQuery qry;
 
         QDateTime now = QDateTime::currentDateTime();
@@ -208,6 +211,8 @@ void ItemsModel::deleteOldData(int days)
         } else {
             qDebug() << "Items table cleared of old items!";
         }
+    } else {
+        qDebug() << "Unable to delete old data:" << m_db.lastError();
     }
 }
 
