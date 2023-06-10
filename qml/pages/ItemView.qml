@@ -16,6 +16,11 @@ Kirigami.ScrollablePage {
 
     title: ititle
 
+    background: Rectangle {
+        color: Kirigami.Theme.backgroundColor
+        anchors.fill: parent
+    }
+
     actions.main: Kirigami.Action {
         id: addAction
         // Name of icon associated with the action
@@ -23,7 +28,7 @@ Kirigami.ScrollablePage {
         // Action text, i18n function returns translated string
         text: "Open in Browser"
         // What to do when triggering the action
-        onTriggered: NewsInterface.sync(_ownCloudURL, _username, _password, 10)
+        onTriggered: Qt.openUrlExternally(link)
     }
 
 

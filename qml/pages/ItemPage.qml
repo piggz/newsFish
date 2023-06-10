@@ -18,63 +18,55 @@ Kirigami.ScrollablePage {
     Component {
         id: itemDelegate
 
-        Rectangle {
+        Kirigami.AbstractListItem {
             id: col
-            width: listView.width
-            height: childrenRect.height
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: Kirigami.Theme.backgroundColor }
-                GradientStop { position: 0.8; color: Kirigami.Theme.backgroundColor }
-                GradientStop { position: 1.0; color: Kirigami.Theme.alternateBackgroundColor }
-            }
-            MouseArea {
-                width: parent.width
-                height: col.height
+            width: listView.width - (2*Kirigami.Units.largeSpacing)
 
-                onClicked: {
-                    var found = false;
-                    for (var idx = 0; idx < pageStack.depth; ++idx) {
-                        if (pageStack.get(idx) === itemView) {
-                            found = true;
-                            console.log("Found itemView in stack");
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        pageStack.push(itemView)
-                    }
-                    itemView.title = itemtitle;
-                    itemView.body = itembodyhtml;
-                    itemView.link = itemlink;
-                    itemView.author = itemauthor;
-                    itemView.pubdate = timeDifference(new Date(), itempubdate);
-                    itemView.unread = itemunread;
-                    itemView.starred = itemstarred;
 
-                    NewsInterface.setItemRead(itemid, true);
+            onClicked: {
+                var found = false;
+                for (var idx = 0; idx < pageStack.depth; ++idx) {
+                    if (pageStack.get(idx) === itemView) {
+                        found = true;
+                        console.log("Found itemView in stack");
+                        break;
+                    }
                 }
+                if (!found) {
+                    pageStack.push(itemView)
+                }
+                itemView.title = itemtitle;
+                itemView.body = itembodyhtml;
+                itemView.link = itemlink;
+                itemView.author = itemauthor;
+                itemView.pubdate = timeDifference(new Date(), itempubdate);
+                itemView.unread = itemunread;
+                itemView.starred = itemstarred;
+
+                NewsInterface.setItemRead(itemid, true);
             }
             Column {
                 id: itm
                 spacing: Kirigami.Units.largeSpacing
-                padding: spacing
+                width: listView.width - (2* Kirigami.Units.largeSpacing)
+                anchors.margins: Kirigami.Units.largeSpacing
 
                 Controls.Label{
                     text: itemtitle
                     font.bold: true
-                    width: listView.width - (2* Kirigami.Units.largeSpacing)
+                    width: parent.width
                     elide: Text.ElideRight
                 }
                 Row {
-                    width: listView.width - (2* Kirigami.Units.largeSpacing)
+                    width: parent.width
 
                     Controls.Label {
                         text: itemauthor
-                        width: parent.width / 2 - Kirigami.Units.largeSpacing
+                        width: parent.width / 2
                     }
                     Controls.Label {
                         text: itempubdate
-                        width: parent.width / 2 - Kirigami.Units.largeSpacing
+                        width: parent.width / 2
                         horizontalAlignment: Text.AlignRight
                     }
                 }
@@ -84,7 +76,14 @@ Kirigami.ScrollablePage {
                     wrapMode: Text.Wrap
                     clip: true
                     maximumLineCount: 3
-                    width: listView.width - (2* Kirigami.Units.largeSpacing)
+                    width:parent.width
+                }
+                Rectangle {
+                    height: 2
+                    width: parent.width
+                    x: Kirigami.Units.largeSpacing
+                    border.color: Kirigami.Theme.activeTextColor
+                    border.width: 1
                 }
             }
         }

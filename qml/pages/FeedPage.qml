@@ -64,6 +64,7 @@ Kirigami.ScrollablePage {
             label: feedtitle
             bold: true
             subtitle: feedurl
+            icon: feedicon
         }
     }
 }
