@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="/">
+    <file>qml/pages/FeedPage.qml</file>
+    <file>qml/pages/ItemPage.qml</file>
+    <file>qml/pages/ItemView.qml</file>
+    <file>qml/pages/SettingsPage.qml</file>
+    <file>qml/cover/CoverPage.qml</file>
+    <file>qml/newsFish.qml</file>
+  </qresource>
+</RCC>

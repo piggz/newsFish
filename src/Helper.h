@@ -8,11 +8,9 @@ class Helper : public QObject
 {
     Q_OBJECT
 public:
-    explicit Helper(QObject *parent = 0);
+    explicit Helper(QObject *parent = nullptr);
 
-signals:
-
-public slots:
+public Q_SLOTS:
     QVariant getSetting(const QString &settingname, QVariant def);
 
     void setSetting(const QString& settingname, QVariant val);

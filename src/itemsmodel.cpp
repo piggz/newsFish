@@ -1,14 +1,15 @@
 #include "itemsmodel.h"
 #include "itemworker.h"
 
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
 #include <QDateTime>
-#include <QTextDocument>
-#include <QRegExp>
 #include <QDebug>
+#include <QRegExp>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QTextDocument>
 #include <QThread>
+#include <qstringliteral.h>
 
 ItemsModel::ItemsModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -53,7 +54,7 @@ QVariant ItemsModel::data(const QModelIndex &index, int role) const
 
 int ItemsModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_items.count() ;
+    return parent.isValid() ? 0 : m_items.count();
 }
 
 void ItemsModel::parseItems(const QByteArray &json)
@@ -65,7 +66,7 @@ void ItemsModel::parseItems(const QByteArray &json)
     auto thread = new QThread;
     auto worker = new ItemWorker(json);
     worker->moveToThread(thread);
-    //connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+    // connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
     connect(thread, &QThread::started, worker, &ItemWorker::process);
     connect(worker, &ItemWorker::finished, thread, &QThread::quit);
     connect(worker, &ItemWorker::finished, worker, &QObject::deleteLater);
@@ -76,18 +77,19 @@ void ItemsModel::parseItems(const QByteArray &json)
 
 void ItemsModel::slotWorkerFinished()
 {
-    emit feedParseComplete();
+    Q_EMIT feedParseComplete();
 }
 
 void ItemsModel::setDatabase(const QString &dbname)
 {
     m_databaseName = dbname;
-    m_db = QSqlDatabase::addDatabase("QSQLITE", "item_connection");
+    m_db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), QStringLiteral("item_connection"));
     m_db.setDatabaseName(m_databaseName);
     if (m_db.open()) {
         QSqlQuery qry;
 
-        qry.prepare( "CREATE TABLE IF NOT EXISTS items (id INTEGER UNIQUE PRIMARY KEY, \
+        qry.prepare(
+            QStringLiteral("CREATE TABLE IF NOT EXISTS items (id INTEGER UNIQUE PRIMARY KEY, \
                      feedid INTEGER, \
                      title VARCHAR(1024), \
                      guid VARCHAR(1024), \
@@ -97,10 +99,10 @@ void ItemsModel::setDatabase(const QString &dbname)
                      author VARCHAR(1024), \
                      pubdate INTEGER, \
                      unread INTEGER, \
-                     starred INTEGER)" );
+                     starred INTEGER)"));
 
         bool ret = qry.exec();
-        if(!ret) {
+        if (!ret) {
             qDebug() << qry.lastError();
         } else {
             qDebug() << "Items table created!";
@@ -110,15 +112,16 @@ void ItemsModel::setDatabase(const QString &dbname)
 
 void ItemsModel::setFeed(int feedId)
 {
-    qDebug() << Q_FUNC_INFO <<  m_db.isOpen();
+    qDebug() << Q_FUNC_INFO << m_db.isOpen();
 
     if (m_db.isOpen() || m_db.open()) {
         QSqlQuery qry;
-        qry.prepare("SELECT id, feedid, title, guid, guidhash, body, link, author, pubdate, unread, starred FROM items WHERE feedid = :fid ORDER BY pubdate DESC");
-        qry.bindValue(":fid", feedId);
+        qry.prepare(QStringLiteral(
+            "SELECT id, feedid, title, guid, guidhash, body, link, author, pubdate, unread, starred FROM items WHERE feedid = :fid ORDER BY pubdate DESC"));
+        qry.bindValue(QStringLiteral(":fid"), feedId);
 
         bool ret = qry.exec();
-        if(!ret) {
+        if (!ret) {
             qDebug() << qry.lastError();
         } else {
             beginResetModel();
@@ -148,14 +151,13 @@ void ItemsModel::setFeed(int feedId)
                 item.starred = qry.value(10).toBool();
 
                 m_items << item;
-
             }
             endResetModel();
         }
     } else {
         qDebug() << "Unable to open database:" << m_db.lastError();
     }
-    //qDebug() << m_items;
+    // qDebug() << m_items;
 }
 
 void ItemsModel::recreateTable()
@@ -165,10 +167,11 @@ void ItemsModel::recreateTable()
     }
     QSqlQuery qry;
 
-    qry.prepare( "DROP TABLE items" );
+    qry.prepare(QStringLiteral("DROP TABLE items"));
     bool ret = qry.exec();
 
-    qry.prepare( "CREATE TABLE IF NOT EXISTS items (id INTEGER UNIQUE PRIMARY KEY, \
+    qry.prepare(
+        QStringLiteral("CREATE TABLE IF NOT EXISTS items (id INTEGER UNIQUE PRIMARY KEY, \
                  feedid INTEGER, \
                  title VARCHAR(1024), \
                  guid VARCHAR(1024), \
@@ -178,10 +181,10 @@ void ItemsModel::recreateTable()
                  author VARCHAR(1024), \
                  pubdate INTEGER, \
                  unread INTEGER, \
-                 starred INTEGER)" );
+                 starred INTEGER)"));
     ret = qry.exec();
 
-    if(!ret) {
+    if (!ret) {
         qDebug() << qry.lastError();
     } else {
         qDebug() << "Items table created!";
@@ -198,14 +201,14 @@ void ItemsModel::deleteOldData(int days)
         QDateTime now = QDateTime::currentDateTime();
         now = now.addDays(-days);
 
-        qry.prepare( "DELETE FROM items WHERE pubdate < :pubdate" );
-        qry.bindValue(":pubdate", now.toTime_t());
+        qry.prepare(QStringLiteral("DELETE FROM items WHERE pubdate < :pubdate"));
+        qry.bindValue(QStringLiteral(":pubdate"), now.toTime_t());
         qDebug() << now << qry.lastQuery();
         qDebug() << qry.boundValues();
 
         bool ret = qry.exec();
 
-        if(!ret) {
+        if (!ret) {
             qDebug() << qry.lastError();
         } else {
             qDebug() << "Items table cleared of old items!";
@@ -215,23 +218,20 @@ void ItemsModel::deleteOldData(int days)
     }
 }
 
-
-
 QHash<int, QByteArray> ItemsModel::roleNames() const
 {
     return {
-        { ItemId, "itemid" },
-        { ItemFeedId, "itemfeedid" },
-        { ItemTitle, "itemtitle" },
-        { ItemGUID, "itemguid" },
-        { ItemGUIDHash, "itemguidhash" },
-        { ItemBody, "itembody" },
-        { ItemBodyHTML, "itembodyhtml" },
-        { ItemLink, "itemlink" },
-        { ItemAuthor, "itemauthor" },
-        { ItemPubDate, "itempubdate" },
-        { ItemUnread, "itemunread" },
-        { ItemStarred, "itemstarred" },
+        {ItemId, "itemid"},
+        {ItemFeedId, "itemfeedid"},
+        {ItemTitle, "itemtitle"},
+        {ItemGUID, "itemguid"},
+        {ItemGUIDHash, "itemguidhash"},
+        {ItemBody, "itembody"},
+        {ItemBodyHTML, "itembodyhtml"},
+        {ItemLink, "itemlink"},
+        {ItemAuthor, "itemauthor"},
+        {ItemPubDate, "itempubdate"},
+        {ItemUnread, "itemunread"},
+        {ItemStarred, "itemstarred"},
     };
 }
-
