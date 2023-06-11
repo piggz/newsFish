@@ -1,62 +1,75 @@
+// SPDX-FileCopyrightText: 2023 Carl Schwan <carl@carlschwan.eu>
+// SPDX-FileCopyrightText: 2023 Adam Pigg <adam@piggz.co.uk>
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15 as Controls
 import org.kde.kirigami 2.20 as Kirigami
+import org.kde.kirigamiaddons.labs.mobileform 0.1 as MobileForm
 import uk.co.piggz 1.0
 
 Kirigami.ScrollablePage {
     id: page
-    title: "News Fish for nextCloud"
+    title: i18n("News Fish for Nextcloud")
 
+    leftPadding: 0
+    rightPadding: 0
 
-    // Place our content in a Column.  The PageHeader is always placed at the top
-    // of the page, followed by our content.
-    Column {
-        id: column
-        width: page.width
+    ColumnLayout {
+        width: parent.width
 
-        Controls.Label {
-            text: "nextCloud URL:"
-        }
-        Controls.TextField {
-            id: txtOwnCloudURL
-            anchors.right: parent.right
-            anchors.left: parent.left
-            inputMethodHints: Qt.ImhNoPredictiveText
-        }
-        Controls.Label {
-            text: "Username:"
-        }
-        Controls.TextField {
-            id: txtOwnCloudUsername
-            anchors.right: parent.right
-            anchors.left: parent.left
-        }
-        Controls.Label {
-            text: "Password:"
-        }
-        Controls.TextField {
-            id: txtOwnCloudPassword
-            anchors.right: parent.right
-            anchors.left: parent.left
-            echoMode: TextInput.PasswordEchoOnEdit
-        }
+        MobileForm.FormCard {
+            Layout.topMargin: Kirigami.Units.largeSpacing
+            Layout.fillWidth: true
+            contentItem: ColumnLayout {
+                spacing: 0
 
-        Controls.Button {
-            id: btnContinue
-            text: "Done"
+                MobileForm.FormCardHeader {
+                    title: i18n("Welcome to newsFish")
+                }
 
-            onClicked: {
+                MobileForm.FormTextFieldDelegate {
+                    id: txtNextcloudURL
+                    label: i18n("Nextcloud Url:")
+                    inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhNoPredictiveText
+                    onAccepted: txtNextcloudUsername.forceActiveFocus();
+                }
 
-                console.log("continue");
+                MobileForm.FormDelegateSeparator {}
 
-                _ownCloudURL = txtOwnCloudURL.text;
-                _username = txtOwnCloudUsername.text;
-                _password = txtOwnCloudPassword.text;
+                MobileForm.FormTextFieldDelegate {
+                    id: txtNextcloudUsername
+                    label: i18n("Username:")
+                    onAccepted: txtNextcloudPassword.forceActiveFocus();
+                }
 
-                saveSettings();
+                MobileForm.FormDelegateSeparator {}
 
-                pageStack.replace(Qt.resolvedUrl("FeedPage.qml"))
+                MobileForm.FormTextFieldDelegate {
+                    id: txtNextcloudPassword
+                    label: i18n("Password:")
+                    onAccepted: done.clicked();
+                    echoMode: TextInput.PasswordEchoOnEdit
+                }
+
+                MobileForm.FormDelegateSeparator { above: btnContinue }
+
+                MobileForm.FormButtonDelegate {
+                    id: btnContinue
+                    text: i18n("Connect")
+                    onClicked: {
+                        _ownCloudURL = txtNextcloudURL.text;
+                        _username = txtNextcloudUsername.text;
+                        _password = txtNextcloudPassword.text;
+
+                        saveSettings();
+
+                        pageStack.replace(Qt.resolvedUrl("FeedPage.qml"))
+                    }
+                }
             }
+
         }
     }
 
@@ -73,15 +86,15 @@ Kirigami.ScrollablePage {
         console.log(_ownCloudURL, _username, _password);
 
         if (_ownCloudURL != "") {
-            txtOwnCloudURL.text = _ownCloudURL;
+            txtNextcloudURL.text = _ownCloudURL;
         }
 
         if (_username != "") {
-            txtOwnCloudUsername.text = _username;
+            txtNextcloudUsername.text = _username;
         }
 
         if (_password != "") {
-            txtOwnCloudPassword.text = _password;
+            txtNextcloudPassword.text = _password;
         }
     }
 
