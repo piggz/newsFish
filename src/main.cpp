@@ -57,9 +57,12 @@ int main(int argc, char *argv[])
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_SAILFISHOS)
     QGuiApplication app(argc, argv);
-    QQuickStyle::setStyle(QStringLiteral("org.kde.breeze"));
 #else
     QApplication app(argc, argv);
+#endif
+
+#if defined(Q_OS_ANDROID)
+    QQuickStyle::setStyle(QStringLiteral("org.kde.breeze"));
 #endif
 
     KLocalizedString::setApplicationDomain("newsfish");
