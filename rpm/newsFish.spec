@@ -71,6 +71,5 @@ desktop-file-install --delete-original       \
 %files
 %defattr(-,root,root,-)
 %{_bindir}
-%{_datadir}/%{name}/qml
-%{_datadir}/applications/%{name}.desktop
+%{_datadir}/applications/uk.co.piggz.%{name}.sailfish.desktop
 %{_datadir}/icons/hicolor/96x96/apps/uk.co.piggz.%{name}.png
