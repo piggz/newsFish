@@ -51,7 +51,7 @@ set_package_properties(KF${QT_MAJOR_VERSION}Kirigami2 PROPERTIES
 )
 find_package(KF${QT_MAJOR_VERSION}KirigamiAddons 0.8.0 REQUIRED)
 
-if (NOT ANDROID)
+if (NOT ANDROID AND NOT SAILFISHOS)
     find_package(KF${QT_MAJOR_VERSION}QQC2DesktopStyle REQUIRED)
     find_package(Qt${QT_MAJOR_VERSION}Svg REQUIRED)
     find_package(Qt${QT_MAJOR_VERSION}Keychain)
