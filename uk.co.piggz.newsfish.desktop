@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
 X-Nemo-Application-Type=generic
-Icon=newsFish
-Exec=qt-runner /usr/bin/newsFish
+Icon=uk.co.piggz.newsfish
+Exec=newsFish
 Name=newsFish
 X-Nemo-Single-Instance=no
 

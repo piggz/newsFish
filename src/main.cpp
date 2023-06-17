@@ -28,74 +28,68 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <QtQuick>
-
-//#include <sailfishapp.h>
-#include "ownnews/newsinterface.h"
-#include "ownnews/feedsmodel.h"
-#include "ownnews/itemsmodel.h"
+// #include <sailfishapp.h>
+#include "../newsfish-version.h"
 #include "Helper.h"
+#include "feedsmodel.h"
+#include "itemsmodel.h"
+#include "newsinterface.h"
+#include <KAboutData>
+#include <KLocalizedContext>
+#include <KLocalizedString>
+#include <QIcon>
+#include <QQmlApplicationEngine>
 
+#if defined(Q_OS_ANDROID) || defined(Q_OS_SAILFISHOS)
+#include <QGuiApplication>
+#else
+#include <QApplication>
+#endif
+
+#ifdef Q_OS_ANDROID
+Q_DECL_EXPORT
+#endif
 int main(int argc, char *argv[])
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+
+#if defined(Q_OS_ANDROID) || defined(Q_OS_SAILFISHOS)
     QGuiApplication app(argc, argv);
+    QQuickStyle::setStyle(QStringLiteral("org.kde.breeze"));
+#else
+    QApplication app(argc, argv);
+#endif
+
+    KLocalizedString::setApplicationDomain("newsfish");
+
+    KAboutData about(QStringLiteral("newsfish"),
+                     i18n("newsFish"),
+                     QStringLiteral(NEWSFISH_VERSION_STRING),
+                     i18n("Nextcloud feed client"),
+                     KAboutLicense::GPL_V3,
+                     i18n("© Adam Pigg <adam@piggz.co.uk>"));
+    about.addAuthor(i18n("Adam Pigg"), i18n("Maintainer"), QStringLiteral("adam@piggz.co.uk"));
+    about.setTranslator(i18nc("NAME OF TRANSLATORS", "Your names"), i18nc("EMAIL OF TRANSLATORS", "Your emails"));
+    about.setOrganizationDomain("piggz.co.uk");
+    about.setBugAddress("https://github.com/piggz/newsFish/issues");
+
+    KAboutData::setApplicationData(about);
+    QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("uk.co.piggz.newsfish")));
 
     qmlRegisterType<FeedsModel>("uk.co.piggz", 1, 0, "FeedsModel");
     qmlRegisterType<ItemsModel>("uk.co.piggz", 1, 0, "ItemsModel");
+    qmlRegisterSingletonType<Helper>("uk.co.piggz", 1, 0, "Helper", [](QQmlEngine *, QJSEngine *) {
+        return new Helper;
+    });
 
-    auto applicationPath = []()
-    {
-        QString argv0 = QCoreApplication::arguments()[0];
-
-        if (argv0.startsWith(QChar('/'))) {
-            // First, try argv[0] if it's an absolute path (needed for booster)
-            return argv0;
-        } else {
-            // If that doesn't give an absolute path, use /proc-based detection
-            return QCoreApplication::applicationFilePath();
-        }
-    };
-
-    auto appName = [applicationPath]() {
-        QFileInfo exe = QFileInfo(applicationPath());
-        return exe.fileName();
-    };
-
-    auto dataDir = [appName, applicationPath]()
-    {
-        QFileInfo exe = QFileInfo(applicationPath());
-
-        // "/usr/bin/<appname>" --> "/usr/share/<appname>/"
-        QString path = exe.absolutePath();
-        int i = path.lastIndexOf(QChar('/')) + 1;
-        return path.replace(i, path.length() - i, "share/") + appName();
-    };
-
-    auto pathToMainQml = [dataDir, appName]()
-    {
-        return QUrl::fromLocalFile(
-                    QDir::cleanPath(dataDir() + "/qml/newsFish.qml"));
-    };
+    qmlRegisterSingletonType<NewsInterface>("uk.co.piggz", 1, 0, "NewsInterface", [](QQmlEngine *, QJSEngine *) {
+        return new NewsInterface;
+    });
 
     QQmlApplicationEngine engine;
-    const QUrl url(pathToMainQml());
-    Helper h;
-
-    NewsInterface interface;
-
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
-            QCoreApplication::exit(-1);
-    }, Qt::QueuedConnection);
-    engine.rootContext()->setContextProperty("Helper", &h);
-    engine.rootContext()->setContextProperty("NewsInterface", &interface);
-
-    engine.load(url);
+    engine.load(QUrl(QStringLiteral("qrc:/qml/newsFish.qml")));
 
     return app.exec();
 }
-
