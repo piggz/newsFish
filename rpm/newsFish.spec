@@ -26,7 +26,6 @@ Requires:       opt-qt5-qtwayland >= 5.15.8
 Requires:       opt-qt5-sfos-maliit-platforminputcontext
 BuildRequires:  opt-qt5-qtdeclarative-devel >= 5.15.8
 BuildRequires:  opt-qt5-qtquickcontrols2-devel >= 5.15.8
-BuildRequires:  opt-qt5-qtbase-devel >= 5.15.8
 BuildRequires:  opt-kf5-rpm-macros
 BuildRequires:  opt-extra-cmake-modules
 BuildRequires:  gcc-c++

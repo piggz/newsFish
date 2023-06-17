@@ -53,7 +53,9 @@ if(ANDROID)
         "help-about"
     )
 else()
-    target_link_libraries(newsfish_static PUBLIC Qt::Widgets)
+    if(NOT SAILFISHOS)
+        target_link_libraries(newsfish_static PUBLIC Qt::Widgets)
+    endif()
 endif()
 
 if(SAILFISHOS)
