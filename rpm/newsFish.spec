@@ -51,7 +51,8 @@ pushd build
 
 %_opt_cmake_kf5 ../ \
                 -DKDE_INSTALL_BINDIR:PATH=/usr/bin \
-                -DCMAKE_INSTALL_PREFIX:PATH=/usr/
+                -DCMAKE_INSTALL_PREFIX:PATH=/usr/ \
+                -DSAILFISHOS=1
 %make_build
 popd
 
