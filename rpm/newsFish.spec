@@ -73,3 +73,4 @@ desktop-file-install --delete-original       \
 %{_bindir}
 %{_datadir}/applications/uk.co.piggz.newsfish.sailfish.desktop
 %{_datadir}/icons/hicolor/96x96/apps/uk.co.piggz.newsfish.png
+%{_datadir}/qlogging-categories5/newsfish.categories
