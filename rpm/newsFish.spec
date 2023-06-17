@@ -26,6 +26,13 @@ Requires:       opt-qt5-qtwayland >= 5.15.8
 Requires:       opt-qt5-sfos-maliit-platforminputcontext
 BuildRequires:  opt-qt5-qtdeclarative-devel >= 5.15.8
 BuildRequires:  opt-qt5-qtquickcontrols2-devel >= 5.15.8
+BuildRequires:  opt-kf5-rpm-macros
+BuildRequires:  extra-cmake-modules
+BuildRequires:  gcc-c++
+BuildRequires:  opt-kf5-kirigami2-devel
+BuildRequires:  opt-kf5-kirigami-addons
+BuildRequires:  qqc2-breeze-style
+
 BuildRequires:  desktop-file-utils
 %{?opt_qt5_default_filter}
 
@@ -36,12 +43,23 @@ Offline news reader for Kirigami and Next Cloud
 %autosetup -n %{name}-%{version}
 
 %build
-%{opt_qmake_qt5}
+export QTDIR=%{_opt_qt5_prefix}
+touch .git
+
+mkdir -p build
+pushd build
+
+%_opt_cmake_kf5 ../ \
+                -DKDE_INSTALL_BINDIR:PATH=/usr/bin \
+                -DCMAKE_INSTALL_PREFIX:PATH=/usr/
 %make_build
+popd
 
 %install
 rm -rf %{buildroot}
-make install INSTALL_ROOT=%{buildroot}
+pushd build
+make DESTDIR=%{buildroot} install
+popd
 
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
