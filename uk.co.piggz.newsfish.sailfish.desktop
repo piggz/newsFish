@@ -2,7 +2,7 @@
 Type=Application
 X-Nemo-Application-Type=generic
 Icon=uk.co.piggz.newsfish
-Exec=qt-runner /usr/bin/newsFish
+Exec=qt-runner /usr/bin/newsfish
 Name=newsFish
 X-Nemo-Single-Instance=no
 
