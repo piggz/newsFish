@@ -27,11 +27,11 @@ Requires:       opt-qt5-sfos-maliit-platforminputcontext
 BuildRequires:  opt-qt5-qtdeclarative-devel >= 5.15.8
 BuildRequires:  opt-qt5-qtquickcontrols2-devel >= 5.15.8
 BuildRequires:  opt-kf5-rpm-macros
-BuildRequires:  extra-cmake-modules
+BuildRequires:  opt-extra-cmake-modules
 BuildRequires:  gcc-c++
 BuildRequires:  opt-kf5-kirigami2-devel
 BuildRequires:  opt-kf5-kirigami-addons
-BuildRequires:  qqc2-breeze-style
+BuildRequires:  dateqqc2-breeze-style
 
 BuildRequires:  desktop-file-utils
 %{?opt_qt5_default_filter}
