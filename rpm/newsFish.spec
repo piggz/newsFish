@@ -31,7 +31,7 @@ BuildRequires:  opt-extra-cmake-modules
 BuildRequires:  gcc-c++
 BuildRequires:  opt-kf5-kirigami2-devel
 BuildRequires:  opt-kf5-kirigami-addons
-BuildRequires:  dateqqc2-breeze-style
+BuildRequires:  qqc2-breeze-style
 
 BuildRequires:  desktop-file-utils
 %{?opt_qt5_default_filter}
