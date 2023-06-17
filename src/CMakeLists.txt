@@ -59,6 +59,7 @@ else()
 endif()
 
 if(SAILFISHOS)
+    target_compile_definitions(newsfish PRIVATE -DQ_OS_SAILFISHOS)
     target_compile_definitions(newsfish_static PRIVATE -DQ_OS_SAILFISHOS)
 endif()
 
