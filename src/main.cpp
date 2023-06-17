@@ -39,6 +39,7 @@
 #include <KLocalizedString>
 #include <QIcon>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_SAILFISHOS)
 #include <QGuiApplication>
@@ -92,6 +93,9 @@ int main(int argc, char *argv[])
     });
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
+    QObject::connect(&engine, &QQmlApplicationEngine::quit, &app, &QCoreApplication::quit);
+
     engine.load(QUrl(QStringLiteral("qrc:/qml/newsFish.qml")));
 
     return app.exec();

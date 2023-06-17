@@ -7,17 +7,14 @@ import uk.co.piggz 1.0
 Kirigami.ApplicationWindow
 {
     globalDrawer: Kirigami.GlobalDrawer {
-        title: "News Fish"
-        titleIcon: "applications-graphics"
-        actions: [
-            Kirigami.Action {
-                text: "Settings"
-                icon.name: "view-list-icons"
-                onTriggered: {
-                    pageStack.replace( Qt.resolvedUrl("pages/SettingsPage.qml") )
-                }
+        isMenu: true
+        actions: Kirigami.Action {
+            text: i18nc("@action:button", "Settings")
+            icon.name: "configure"
+            onTriggered: {
+                pageStack.replace( Qt.resolvedUrl("pages/SettingsPage.qml") )
             }
-        ]
+        }
     }
 
     ItemView {
