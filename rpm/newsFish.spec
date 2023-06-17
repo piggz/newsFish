@@ -71,5 +71,5 @@ desktop-file-install --delete-original       \
 %files
 %defattr(-,root,root,-)
 %{_bindir}
-%{_datadir}/applications/uk.co.piggz.%{name}.sailfish.desktop
-%{_datadir}/icons/hicolor/96x96/apps/uk.co.piggz.%{name}.png
+%{_datadir}/applications/uk.co.piggz.newsfish.sailfish.desktop
+%{_datadir}/icons/hicolor/96x96/apps/uk.co.piggz.newsfish.png
