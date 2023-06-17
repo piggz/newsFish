@@ -32,6 +32,7 @@ BuildRequires:  gcc-c++
 BuildRequires:  opt-kf5-kirigami2-devel
 BuildRequires:  opt-kf5-kirigami-addons
 BuildRequires:  qqc2-breeze-style
+BuildRequires:  opt-kf5-ki18n-devel
 
 BuildRequires:  desktop-file-utils
 %{?opt_qt5_default_filter}
