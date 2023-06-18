@@ -40,6 +40,27 @@ BuildRequires:  desktop-file-utils
 
 %description
 Offline news reader for Kirigami and Next Cloud
+%if 0%{?_chum}
+Title: News Fish
+Type: desktop-application
+DeveloperName: Adam Pigg
+Categories:
+ - Network
+ - Utility
+Custom:
+  Repo: https://github.com/piggz/newsFish
+PackageIcon: https://github.com/piggz/newsFish/raw/main/uk.co.piggz.newsfish.png
+Screenshots:
+ - https://github.com/piggz/newsFish/raw/main/screenshot1.jpg
+ - https://github.com/piggz/newsFish/raw/main/screenshot2.jpg
+ - https://github.com/piggz/newsFish/raw/main/screenshot3.jpg
+ - https://github.com/piggz/newsFish/raw/main/screenshot5.jpg
+Links:
+  Homepage: https://github.com/piggz/newsFish
+  Help: https://github.com/piggz/newsFish/discussions
+  Bugtracker: https://github.com/piggz/newsFish/issues
+  Donation: https://www.paypal.me/piggz
+%endif
 
 %prep
 %autosetup -n %{name}-%{version}
