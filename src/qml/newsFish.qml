@@ -12,8 +12,16 @@ Kirigami.ApplicationWindow {
     property string _password: ""
 
     pageStack {
-        popHiddenPages: true
-        globalToolBar.style: Kirigami.ApplicationHeaderStyle.ToolBar
+        defaultColumnWidth: Kirigami.Units.gridUnit * 20
+        globalToolBar {
+            style: Kirigami.ApplicationHeaderStyle.ToolBar
+            showNavigationButtons: if (applicationWindow().pageStack.currentIndex > 0
+                || applicationWindow().pageStack.currentIndex > 0) {
+                Kirigami.ApplicationHeaderStyle.ShowBackButton
+            } else {
+                0
+            }
+        }
     }
 
     globalDrawer: Kirigami.GlobalDrawer {

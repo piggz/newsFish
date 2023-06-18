@@ -16,6 +16,8 @@ public Q_SLOTS:
     void setSetting(const QString& settingname, QVariant val);
     bool settingExists(const QString &settingname);
 
+    QString adjustedContent(const int width, const int fontSize, const QString &text);
+
 private:
     QSettings settings;
 

@@ -24,7 +24,7 @@ public:
         ItemStarred
     };
 
-    explicit ItemsModel(QObject *parent = nullptr);
+    explicit ItemsModel(const QSqlDatabase &db, QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = {}) const override;
@@ -61,7 +61,6 @@ private:
     QList<Item> m_items;
 
     QSqlDatabase m_db;
-    QString m_databaseName;
 };
 
 Q_DECLARE_METATYPE(ItemsModel *);

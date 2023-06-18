@@ -53,7 +53,7 @@ Kirigami.ScrollablePage {
                     wrapMode: Text.Wrap
                     elide: Text.ElideRight
                     maximumLineCount: 3
-                    opacity: delegate.itemunread ? 0.7 : 1
+                    opacity: delegate.itemunread ? 1 : 0.7
                 }
 
                 Controls.Label {

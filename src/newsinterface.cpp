@@ -12,11 +12,11 @@ const QString NewsInterface::format = QStringLiteral("json");
 
 NewsInterface::NewsInterface(QObject *parent)
     : QObject(parent)
+    , m_networkManager(new QNetworkAccessManager(this))
+    , m_db(QSqlDatabase::addDatabase(QStringLiteral("QSQLITE")))
+    , m_busy(false)
 {
-    m_networkManager = new QNetworkAccessManager();
     m_networkManager->setAutoDeleteReplies(true);
-
-    m_busy = false;
 
     feedsPath = rootPath + QStringLiteral("feeds");
     itemsPath = rootPath + QStringLiteral("items");
@@ -26,15 +26,12 @@ NewsInterface::NewsInterface(QObject *parent)
             this,
             SLOT(slotAuthenticationRequired(QNetworkReply *, QAuthenticator *)));
 
-    m_db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
     m_db.setDatabaseName(QStringLiteral("ownnews.sqlite"));
 
     m_db.open(); // TODO error checking
-
+                 //
     m_feedsModel = new FeedsModel(m_db, this);
-
-    m_itemsModel = new ItemsModel(this);
-    m_itemsModel->setDatabase(QStringLiteral("ownnews.sqlite"));
+    m_itemsModel = new ItemsModel(m_db, this);
 
     connect(m_itemsModel, SIGNAL(feedParseComplete()), this, SLOT(slotItemProcessFinished()));
 }
@@ -87,8 +84,6 @@ void NewsInterface::getFeeds()
             m_feedsModel->parseFeeds(reply->readAll());
             m_feedsToSync = m_feedsModel->feedIds();
             syncNextFeed();
-            m_busy = false;
-            Q_EMIT busyChanged(m_busy);
         });
 
         connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &) {
@@ -183,8 +178,6 @@ void NewsInterface::setItemRead(long itemId, bool read)
     QUrl url(serverPath + itemsPath + QLatin1Char('/') + QString::number(itemId) + (read ? QStringLiteral("/read") : QStringLiteral("/unread")));
     url.setUserName(m_username);
     url.setPassword(m_password);
-
-    qDebug() << url;
 
     auto reply = m_networkManager->put(QNetworkRequest(url), "");
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {

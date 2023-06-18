@@ -17,11 +17,8 @@ Kirigami.ScrollablePage {
         onTriggered: NewsInterface.sync(_ownCloudURL, _username, _password, 10)
     }
 
-    supportsRefreshing: !NewsInterface.busy
-    onRefreshingChanged: {
-        if (refreshing) {
-            NewsInterface.sync(_ownCloudURL, _username, _password, 10)
-        }
+    onRefreshingChanged: if (refreshing && !NewsInterface.busy) {
+        NewsInterface.sync(_ownCloudURL, _username, _password, 10)
     }
 
     ListView {

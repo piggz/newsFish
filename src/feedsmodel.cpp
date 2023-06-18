@@ -119,14 +119,29 @@ void FeedsModel::loadData()
     qDebug() << "Loading feed data from cache";
 
     QSqlQuery query(m_db);
+    query.prepare(QStringLiteral(R"RAW(
+        SELECT
+            id,
+            feed_url,
+            title,
+            favicon_link,
+            added,
+            folder_id,
+            unread_count,
+            ordering,
+            link,
+            pinned,
+            update_error_count,
+            last_update_error
+        FROM
+            feeds
+        )RAW"));
 
-    if (!query.exec(QStringLiteral("SELECT id, feed_url, title, favicon_link, added, folder_id, unread_count, ordering, link, pinned, update_error_count, "
-                                   "last_update_error FROM feeds"))) {
+    if (!query.exec()) {
         qWarning() << Q_FUNC_INFO << "Error trying to fetch data from cache" << query.lastError() << query.lastQuery();
         return;
     }
 
-    beginResetModel();
     while (query.next()) {
         m_feeds << Feed::fromQuery(query);
     }
@@ -159,10 +174,19 @@ void FeedsModel::checkFeeds(QList<int> feeds)
             QSqlQuery delQuery(m_db);
             qry.prepare(QStringLiteral("DELETE FROM items where feedid = :id"));
             qry.bindValue(QStringLiteral(":id"), feed);
-            qry.exec();
+
+            if (!qry.exec()) {
+                qWarning() << Q_FUNC_INFO << "Error trying to delete old items from items" << qry.lastError() << qry.lastQuery();
+                return;
+            }
+
             qry.prepare(QStringLiteral("DELETE FROM feeds where id = :id"));
             qry.bindValue(QStringLiteral(":id"), feed);
-            qry.exec();
+
+            if (!qry.exec()) {
+                qWarning() << Q_FUNC_INFO << "Error trying to delete old feeds from feeds" << qry.lastError() << qry.lastQuery();
+                return;
+            }
         }
     }
 }
@@ -243,20 +267,50 @@ void FeedsModel::addFeed(const Feed &feed)
         return;
     }
 
-    QSqlQuery qry(m_db);
-    qry.prepare(QStringLiteral(R"RAW(
-        INSERT OR REPLACE INTO feeds(id, feed_url, title, favicon_link, added, folder_id, unread_count, ordering, link, pinned, update_error_count, last_update_error)
-        VALUES(:id, :feed_url, :title, :favicon_link, :added, :folder_id, :unread_count, :ordering, :link, :pinned, :update_error_count, :last_update_error))RAW"));
-    qry.bindValue(QStringLiteral(":id"), feed.id);
-    qry.bindValue(QStringLiteral(":feed_url"), feed.feedUrl);
-    qry.bindValue(QStringLiteral(":title"), feed.title);
-    qry.bindValue(QStringLiteral(":favicon_link"), feed.faviconLink);
-    qry.bindValue(QStringLiteral(":added"), feed.added.toSecsSinceEpoch());
-    qry.bindValue(QStringLiteral(":folder_id"), feed.folderId);
-    qry.bindValue(QStringLiteral(":unread_count"), feed.unreadCount);
-    qry.bindValue(QStringLiteral(":ordering"), feed.ordering);
-    qry.bindValue(QStringLiteral(":link"), feed.link);
-    qry.bindValue(QStringLiteral(":pinned"), feed.pinned);
-    qry.bindValue(QStringLiteral(":update_error_count"), feed.updateErrorCount);
-    qry.bindValue(QStringLiteral(":last_update_error"), feed.lastUpdateError);
+    QSqlQuery query(m_db);
+    query.prepare(QStringLiteral(R"RAW(
+        INSERT OR REPLACE INTO feeds(
+            id,
+            feed_url,
+            title,
+            favicon_link,
+            added,
+            folder_id,
+            unread_count,
+            ordering,
+            link,
+            pinned,
+            update_error_count,
+            last_update_error
+        ) VALUES(
+            :id,
+            :feed_url,
+            :title,
+            :favicon_link,
+            :added,
+            :folder_id,
+            :unread_count,
+            :ordering,
+            :link,
+            :pinned,
+            :update_error_count,
+            :last_update_error
+        ))RAW"));
+    query.bindValue(QStringLiteral(":id"), feed.id);
+    query.bindValue(QStringLiteral(":feed_url"), feed.feedUrl);
+    query.bindValue(QStringLiteral(":title"), feed.title);
+    query.bindValue(QStringLiteral(":favicon_link"), feed.faviconLink);
+    query.bindValue(QStringLiteral(":added"), feed.added.toSecsSinceEpoch());
+    query.bindValue(QStringLiteral(":folder_id"), feed.folderId);
+    query.bindValue(QStringLiteral(":unread_count"), feed.unreadCount);
+    query.bindValue(QStringLiteral(":ordering"), feed.ordering);
+    query.bindValue(QStringLiteral(":link"), feed.link);
+    query.bindValue(QStringLiteral(":pinned"), feed.pinned);
+    query.bindValue(QStringLiteral(":update_error_count"), feed.updateErrorCount);
+    query.bindValue(QStringLiteral(":last_update_error"), feed.lastUpdateError);
+
+    if (!query.exec()) {
+        qWarning() << Q_FUNC_INFO << "Error trying to add data to cache" << query.lastError() << query.lastQuery();
+        return;
+    }
 }

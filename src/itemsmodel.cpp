@@ -11,9 +11,31 @@
 #include <QThread>
 #include <qstringliteral.h>
 
-ItemsModel::ItemsModel(QObject *parent)
+ItemsModel::ItemsModel(const QSqlDatabase &db, QObject *parent)
     : QAbstractListModel(parent)
 {
+    m_db = db;
+    QSqlQuery qry(db);
+
+    qry.prepare(
+        QStringLiteral("CREATE TABLE IF NOT EXISTS items (id INTEGER UNIQUE PRIMARY KEY, \
+                 feedid INTEGER, \
+                 title VARCHAR(1024), \
+                 guid VARCHAR(1024), \
+                 guidhash VARCHAR(1024), \
+                 body VARCHAR(2048), \
+                 link VARCHAR(2048), \
+                 author VARCHAR(1024), \
+                 pubdate INTEGER, \
+                 unread INTEGER, \
+                 starred INTEGER)"));
+
+    bool ret = qry.exec();
+    if (!ret) {
+        qDebug() << qry.lastError();
+    } else {
+        qDebug() << "Items table created!";
+    }
 }
 
 QVariant ItemsModel::data(const QModelIndex &index, int role) const
@@ -82,32 +104,6 @@ void ItemsModel::slotWorkerFinished()
 
 void ItemsModel::setDatabase(const QString &dbname)
 {
-    m_databaseName = dbname;
-    m_db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), QStringLiteral("item_connection"));
-    m_db.setDatabaseName(m_databaseName);
-    if (m_db.open()) {
-        QSqlQuery qry;
-
-        qry.prepare(
-            QStringLiteral("CREATE TABLE IF NOT EXISTS items (id INTEGER UNIQUE PRIMARY KEY, \
-                     feedid INTEGER, \
-                     title VARCHAR(1024), \
-                     guid VARCHAR(1024), \
-                     guidhash VARCHAR(1024), \
-                     body VARCHAR(2048), \
-                     link VARCHAR(2048), \
-                     author VARCHAR(1024), \
-                     pubdate INTEGER, \
-                     unread INTEGER, \
-                     starred INTEGER)"));
-
-        bool ret = qry.exec();
-        if (!ret) {
-            qDebug() << qry.lastError();
-        } else {
-            qDebug() << "Items table created!";
-        }
-    }
 }
 
 void ItemsModel::setFeed(int feedId)
