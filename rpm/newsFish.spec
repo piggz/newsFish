@@ -16,7 +16,7 @@ Summary:    newsFish ownCloud mobile news client for Sailfish
 Version:    0.4
 Release:    1
 Group:      Qt/Qt
-License:    LICENSE
+License:    GPLv2+
 URL:        http://example.org/
 Source0:    %{name}-%{version}.tar.bz2
 Requires:       qt-runner
