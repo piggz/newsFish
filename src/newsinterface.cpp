@@ -14,6 +14,7 @@ NewsInterface::NewsInterface(QObject *parent)
     : QObject(parent)
 {
     m_networkManager = new QNetworkAccessManager();
+    m_networkManager->setAutoDeleteReplies(true);
 
     m_busy = false;
 
@@ -24,15 +25,13 @@ NewsInterface::NewsInterface(QObject *parent)
             SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)),
             this,
             SLOT(slotAuthenticationRequired(QNetworkReply *, QAuthenticator *)));
-    connect(m_networkManager, SIGNAL(finished(QNetworkReply *)), this, SLOT(slotReplyFinished(QNetworkReply *)));
 
     m_db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"));
     m_db.setDatabaseName(QStringLiteral("ownnews.sqlite"));
 
     m_db.open(); // TODO error checking
 
-    m_feedsModel = new FeedsModel(this);
-    m_feedsModel->setDatabase(QStringLiteral("ownnews.sqlite"));
+    m_feedsModel = new FeedsModel(m_db, this);
 
     m_itemsModel = new ItemsModel(this);
     m_itemsModel->setDatabase(QStringLiteral("ownnews.sqlite"));
@@ -60,45 +59,6 @@ void NewsInterface::slotAuthenticationRequired(QNetworkReply *reply, QAuthentica
 
 void NewsInterface::slotReplyFinished(QNetworkReply *reply)
 {
-    qDebug() << "Reply from " << reply->url().path();
-
-    if (reply->url().path().endsWith(feedsPath)) {
-        qDebug() << "Reply from feeds";
-        m_feedsModel->parseFeeds(reply->readAll());
-        m_feedsToSync = m_feedsModel->feedIds();
-        syncNextFeed();
-        return;
-    }
-
-    if (reply->url().path().endsWith(itemsPath)) {
-        qDebug() << "Reply from items";
-        m_itemsModel->parseItems(reply->readAll());
-        return;
-    }
-
-    if (reply->url().path().endsWith(QStringLiteral("/read"))) {
-        qDebug() << "Reply from item read";
-        return;
-    }
-
-    if (reply->url().path().endsWith(QStringLiteral("/unread"))) {
-        qDebug() << "Reply from item unread";
-        return;
-    }
-
-    if (reply->url().path().endsWith(QStringLiteral("/star"))) {
-        qDebug() << "Reply from item star" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-
-        return;
-    }
-
-    if (reply->url().path().endsWith(QStringLiteral("/unstar"))) {
-        qDebug() << "Reply from item unstar";
-        return;
-    }
-
-    m_busy = false;
-    Q_EMIT busyChanged(m_busy);
 }
 
 void NewsInterface::slotItemProcessFinished()
@@ -121,8 +81,19 @@ void NewsInterface::getFeeds()
         QNetworkRequest r(url);
         addAuthHeader(&r);
 
-        QNetworkReply *reply = m_networkManager->get(r);
-        connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply, SLOT(ignoreSslErrors()));
+        auto reply = m_networkManager->get(r);
+        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+            qDebug() << "Reply from feeds";
+            m_feedsModel->parseFeeds(reply->readAll());
+            m_feedsToSync = m_feedsModel->feedIds();
+            syncNextFeed();
+            m_busy = false;
+            Q_EMIT busyChanged(m_busy);
+        });
+
+        connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &) {
+            reply->ignoreSslErrors();
+        });
     }
 }
 
@@ -151,8 +122,16 @@ void NewsInterface::getItems(int feedId)
     QNetworkRequest r(url);
     addAuthHeader(&r);
 
-    QNetworkReply *reply = m_networkManager->get(r);
-    connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply, SLOT(ignoreSslErrors()));
+    auto reply = m_networkManager->get(r);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        m_itemsModel->parseItems(reply->readAll());
+        m_busy = false;
+        Q_EMIT busyChanged(m_busy);
+    });
+
+    connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &) {
+        reply->ignoreSslErrors();
+    });
 }
 
 void NewsInterface::syncNextFeed()
@@ -207,7 +186,11 @@ void NewsInterface::setItemRead(long itemId, bool read)
 
     qDebug() << url;
 
-    m_networkManager->put(QNetworkRequest(url), "");
+    auto reply = m_networkManager->put(QNetworkRequest(url), "");
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        m_busy = false;
+        Q_EMIT busyChanged(m_busy);
+    });
 }
 
 void NewsInterface::setItemStarred(int feedId, const QString &itemGUIDHash, bool starred)
@@ -221,7 +204,11 @@ void NewsInterface::setItemStarred(int feedId, const QString &itemGUIDHash, bool
 
     qDebug() << url;
 
-    m_networkManager->put(QNetworkRequest(url), "");
+    auto reply = m_networkManager->put(QNetworkRequest(url), "");
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        m_busy = false;
+        Q_EMIT busyChanged(m_busy);
+    });
 }
 
 void NewsInterface::addAuthHeader(QNetworkRequest *r)
