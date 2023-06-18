@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
     KAboutData::setApplicationData(about);
     QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("uk.co.piggz.newsfish")));
 
-    qmlRegisterType<FeedsModel>("uk.co.piggz", 1, 0, "FeedsModel");
     qmlRegisterType<ItemsModel>("uk.co.piggz", 1, 0, "ItemsModel");
     qmlRegisterSingletonType<Helper>("uk.co.piggz", 1, 0, "Helper", [](QQmlEngine *, QJSEngine *) {
         return new Helper;
