@@ -10,7 +10,7 @@ class ItemWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit ItemWorker(const QByteArray &json, QObject *parent = nullptr);
+    explicit ItemWorker(const QSqlDatabase &db, const QByteArray &json, QObject *parent = nullptr);
 
 public Q_SLOTS:
     void process();

@@ -86,7 +86,7 @@ void ItemsModel::parseItems(const QByteArray &json)
     m_items.clear();
 
     auto thread = new QThread;
-    auto worker = new ItemWorker(json);
+    auto worker = new ItemWorker(m_db, json);
     worker->moveToThread(thread);
     // connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
     connect(thread, &QThread::started, worker, &ItemWorker::process);
@@ -116,6 +116,7 @@ void ItemsModel::setFeed(int feedId)
             "SELECT id, feedid, title, guid, guidhash, body, link, author, pubdate, unread, starred FROM items WHERE feedid = :fid ORDER BY pubdate DESC"));
         qry.bindValue(QStringLiteral(":fid"), feedId);
 
+        qDebug() << feedId;
         bool ret = qry.exec();
         if (!ret) {
             qDebug() << qry.lastError();

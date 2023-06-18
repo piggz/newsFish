@@ -9,23 +9,16 @@
 #include <QSqlQuery>
 #include <QVariant>
 
-ItemWorker::ItemWorker(const QByteArray &json, QObject *parent)
+ItemWorker::ItemWorker(const QSqlDatabase &db, const QByteArray &json, QObject *parent)
     : QObject(parent)
+    , m_db(db)
+    , m_json(json)
 {
-    m_json = json;
 }
 
 void ItemWorker::process()
 {
-    m_db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), QStringLiteral("worker_connection"));
-    m_db.setDatabaseName(QStringLiteral("ownnews.sqlite"));
-
-    if (m_db.open()) {
-        parseItems();
-        Q_EMIT finished();
-    } else {
-        qDebug() << Q_FUNC_INFO << "Unable to open database" << m_db.lastError();
-    }
+    parseItems();
 }
 
 void ItemWorker::parseItems()

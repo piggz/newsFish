@@ -2,8 +2,11 @@
 
 #include <QAuthenticator>
 #include <QDebug>
+#include <QDir>
+#include <QGuiApplication>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QStandardPaths>
 #include <QUrlQuery>
 
 // const QString NewsInterface::rootPath = "/ocs/v1.php/apps/news/";
@@ -26,10 +29,15 @@ NewsInterface::NewsInterface(QObject *parent)
             this,
             SLOT(slotAuthenticationRequired(QNetworkReply *, QAuthenticator *)));
 
-    m_db.setDatabaseName(QStringLiteral("ownnews.sqlite"));
+    if (QDir().mkpath(QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)))) {
+        qCritical() << "Couldn't create directory for cache database";
+    }
+    const auto path = QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/") + qGuiApp->applicationName());
+    qDebug() << "Storing cache in" << path;
+    m_db.setDatabaseName(path);
 
-    m_db.open(); // TODO error checking
-                 //
+    m_db.open();
+
     m_feedsModel = new FeedsModel(m_db, this);
     m_itemsModel = new ItemsModel(m_db, this);
 
