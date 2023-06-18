@@ -44,14 +44,8 @@ NewsInterface::NewsInterface(QObject *parent)
     connect(m_itemsModel, SIGNAL(feedParseComplete()), this, SLOT(slotItemProcessFinished()));
 }
 
-void NewsInterface::sync(const QString &url, const QString &username, const QString &password, int daysToRetain, int numItemsToSync)
+void NewsInterface::sync()
 {
-    serverPath = url;
-    m_username = username;
-    m_password = password;
-    m_daysToRetain = daysToRetain;
-    m_numItemsToSync = numItemsToSync;
-
     getFeeds();
 }
 
@@ -60,10 +54,6 @@ void NewsInterface::slotAuthenticationRequired(QNetworkReply *reply, QAuthentica
     qDebug() << "Asked to authenticate";
     authenticator->setUser(m_username);
     authenticator->setPassword(m_password);
-}
-
-void NewsInterface::slotReplyFinished(QNetworkReply *reply)
-{
 }
 
 void NewsInterface::slotItemProcessFinished()
@@ -77,11 +67,11 @@ void NewsInterface::getFeeds()
         m_busy = true;
         Q_EMIT busyChanged(m_busy);
 
-        QUrl url(serverPath + feedsPath);
+        QUrl url(m_serverPath + feedsPath);
         url.setUserName(m_username);
         url.setPassword(m_password);
 
-        qDebug() << url;
+        qDebug() << url << this;
 
         QNetworkRequest r(url);
         addAuthHeader(&r);
@@ -108,7 +98,7 @@ void NewsInterface::getItems(int feedId)
     }
     qDebug() << "Getting items for feed " << feedId;
 
-    QUrl url(serverPath + itemsPath);
+    QUrl url(m_serverPath + itemsPath);
     url.setUserName(m_username);
     url.setPassword(m_password);
 
@@ -120,7 +110,6 @@ void NewsInterface::getItems(int feedId)
     q.addQueryItem(QStringLiteral("format"), format);
     q.addQueryItem(QStringLiteral("getRead"), QStringLiteral("true"));
     url.setQuery(q);
-    qDebug() << url;
 
     QNetworkRequest r(url);
     addAuthHeader(&r);
@@ -183,13 +172,20 @@ void NewsInterface::setItemRead(long itemId, bool read)
 {
     qDebug() << "Setting item read " << itemId;
 
-    QUrl url(serverPath + itemsPath + QLatin1Char('/') + QString::number(itemId) + (read ? QStringLiteral("/read") : QStringLiteral("/unread")));
+    QUrl url(m_serverPath + itemsPath + QLatin1Char('/') + QString::number(itemId) + (read ? QStringLiteral("/read") : QStringLiteral("/unread")));
     url.setUserName(m_username);
     url.setPassword(m_password);
 
-    auto reply = m_networkManager->put(QNetworkRequest(url), "");
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+    QNetworkRequest r(url);
+    addAuthHeader(&r);
+
+    auto reply = m_networkManager->put(r, QByteArray());
+    connect(reply, &QNetworkReply::finished, this, [this, reply, itemId, read]() {
+        if (reply->error() != QNetworkReply::NoError) {
+            qWarning() << reply->errorString() << reply->error();
+        }
         m_busy = false;
+        m_itemsModel->setItemRead(itemId, read);
         Q_EMIT busyChanged(m_busy);
     });
 }
@@ -198,14 +194,15 @@ void NewsInterface::setItemStarred(int feedId, const QString &itemGUIDHash, bool
 {
     qDebug() << "Setting item starred " << itemGUIDHash;
 
-    QUrl url(serverPath + itemsPath + QLatin1Char('/') + QString::number(feedId) + QLatin1Char('/') + itemGUIDHash
+    QUrl url(m_serverPath + itemsPath + QLatin1Char('/') + QString::number(feedId) + QLatin1Char('/') + itemGUIDHash
              + (starred ? QStringLiteral("/star") : QStringLiteral("/unstar")));
     url.setUserName(m_username);
     url.setPassword(m_password);
 
-    qDebug() << url;
+    QNetworkRequest r(url);
+    addAuthHeader(&r);
 
-    auto reply = m_networkManager->put(QNetworkRequest(url), "");
+    auto reply = m_networkManager->put(r, "");
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         m_busy = false;
         Q_EMIT busyChanged(m_busy);

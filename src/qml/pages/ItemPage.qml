@@ -14,6 +14,7 @@ Kirigami.ScrollablePage {
         delegate: Kirigami.AbstractListItem {
             id: delegate
 
+            required property int index
             required property string itemid
             required property string itemtitle
             required property string itemauthor
@@ -40,6 +41,8 @@ Kirigami.ScrollablePage {
                 })
 
                 NewsInterface.setItemRead(itemid, true);
+
+                ListView.view.currentIndex = index;
             }
 
             contentItem: ColumnLayout {

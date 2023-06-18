@@ -151,6 +151,7 @@ void ItemsModel::setFeed(int feedId)
             }
             endResetModel();
         }
+
     } else {
         qDebug() << "Unable to open database:" << m_db.lastError();
     }
@@ -185,6 +186,26 @@ void ItemsModel::recreateTable()
         qDebug() << qry.lastError();
     } else {
         qDebug() << "Items table created!";
+    }
+}
+
+void ItemsModel::setItemRead(int itemId, bool read)
+{
+    QSqlQuery query(m_db);
+    query.prepare(QStringLiteral("UPDATE items SET unread = :unread WHERE id = :itemid"));
+    query.bindValue(QStringLiteral(":unread"), read ? 0 : 1);
+    query.bindValue(QStringLiteral(":itemid"), itemId);
+    if (!query.exec()) {
+        qWarning() << query.lastError();
+    }
+
+    for (int i = 0, count = m_items.count(); i < count; i++) {
+        if (m_items[i].id == itemId) {
+            m_items[i].unread = !read;
+            Q_EMIT dataChanged(index(i, 0), index(i, 0), {ItemUnread});
+
+            return;
+        }
     }
 }
 

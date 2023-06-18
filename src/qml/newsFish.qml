@@ -41,6 +41,10 @@ Kirigami.ApplicationWindow {
         _username = Helper.getSetting("username", "");
         _password = Helper.getSetting("password", "");
 
+        NewsInterface.serverPath = _ownCloudURL;
+        NewsInterface.username = _username;
+        NewsInterface.password = _password;
+
         if (!_ownCloudURL || !_username || !_password) {
             pageStack.push( Qt.resolvedUrl("pages/SettingsPage.qml") )
         } else {

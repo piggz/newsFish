@@ -8,17 +8,19 @@ Kirigami.ScrollablePage {
     title: i18n("Feeds")
 
     actions.main: Kirigami.Action {
-        id: addAction
-        // Name of icon associated with the action
+        id: refreshAction
         icon.name: "view-refresh"
-        // Action text, i18n function returns translated string
-        text: "Sync"
-        // What to do when triggering the action
-        onTriggered: NewsInterface.sync(_ownCloudURL, _username, _password, 10)
+        text: i18n("Sync")
+        onTriggered: if (!NewsInterface.busy) {
+            NewsInterface.serverPath = _ownCloudURL;
+            NewsInterface.username = _username;
+            NewsInterface.password = _password;
+            NewsInterface.sync();
+        }
     }
 
-    onRefreshingChanged: if (refreshing && !NewsInterface.busy) {
-        NewsInterface.sync(_ownCloudURL, _username, _password, 10)
+    onRefreshingChanged: if (feedpage.refreshing) {
+        refreshAction.trigger();
     }
 
     ListView {

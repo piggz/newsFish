@@ -35,6 +35,7 @@ public:
     void setFeed(int feedId);
     void recreateTable();
     void deleteOldData(int days);
+    void setItemRead(int itemId, bool read);
 
 Q_SIGNALS:
     void feedParseComplete();
