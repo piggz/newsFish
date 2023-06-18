@@ -1,11 +1,21 @@
-import QtQuick 2.1
-import QtQuick.Controls 2.0 as QQC2
-import org.kde.kirigami 2.4 as Kirigami
+import QtQuick 2.15
+import QtQuick.Controls 2.15 as QQC2
+import org.kde.kirigami 2.20 as Kirigami
 import "pages"
 import uk.co.piggz 1.0
 
-Kirigami.ApplicationWindow
-{
+Kirigami.ApplicationWindow {
+    id: root
+
+    property string _ownCloudURL: ""
+    property string _username: ""
+    property string _password: ""
+
+    pageStack {
+        popHiddenPages: true
+        globalToolBar.style: Kirigami.ApplicationHeaderStyle.ToolBar
+    }
+
     globalDrawer: Kirigami.GlobalDrawer {
         isMenu: true
         actions: Kirigami.Action {
@@ -17,31 +27,18 @@ Kirigami.ApplicationWindow
         }
     }
 
-    ItemView {
-        id: itemView
-    }
-
-    ItemPage {
-        id: itemPage
-    }
-
     Component.onCompleted: {
-            console.log("Loading Settings");
-            _ownCloudURL = Helper.getSetting("ownCloudURL", "");
-            _username = Helper.getSetting("username", "");
-            _password = Helper.getSetting("password", "");
+        console.log("Loading Settings");
+        _ownCloudURL = Helper.getSetting("ownCloudURL", "");
+        _username = Helper.getSetting("username", "");
+        _password = Helper.getSetting("password", "");
 
-            if (!_ownCloudURL || !_username || !_password) {
-                pageStack.push( Qt.resolvedUrl("pages/SettingsPage.qml") )
-            } else {
-                pageStack.push( Qt.resolvedUrl("pages/FeedPage.qml") )
-            }
+        if (!_ownCloudURL || !_username || !_password) {
+            pageStack.push( Qt.resolvedUrl("pages/SettingsPage.qml") )
+        } else {
+            pageStack.push( Qt.resolvedUrl("pages/FeedPage.qml") )
+        }
     }
-
-    pageStack.popHiddenPages: true
-    property string _ownCloudURL: ""
-    property string _username: ""
-    property string _password: ""
 
     function timeDifference(current, previous) {
         var msPerMinute = 60 * 1000;

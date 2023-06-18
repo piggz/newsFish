@@ -5,7 +5,7 @@ import uk.co.piggz 1.0
 
 Kirigami.ScrollablePage {
     id: feedpage
-    title: "Feeds"
+    title: i18n("Feeds")
 
     actions.main: Kirigami.Action {
         id: addAction
@@ -18,11 +18,11 @@ Kirigami.ScrollablePage {
     }
 
     supportsRefreshing: !NewsInterface.busy
-        onRefreshingChanged: {
-            if (refreshing) {
-                NewsInterface.sync(_ownCloudURL, _username, _password, 10)
-            }
+    onRefreshingChanged: {
+        if (refreshing) {
+            NewsInterface.sync(_ownCloudURL, _username, _password, 10)
         }
+    }
 
     ListView {
         id: listView
@@ -34,37 +34,42 @@ Kirigami.ScrollablePage {
             anchors.centerIn: parent
             running: NewsInterface.busy
         }
+
+        Kirigami.PlaceholderMessage {
+            anchors.centerIn: parent
+            text: i18n("No feeds found")
+            visible: listView.count === 0 && !NewsInterface.busy
+            width: parent.width - Kirigami.Units.gridUnit * 4
+        }
     }
 
     Component {
         id: feedDelegate
 
         Kirigami.BasicListItem {
+            id: delegate
 
-            onClicked: {
-                if (!NewsInterface.busy) {
-                    console.log("click", feedid);
-                    NewsInterface.viewItems(feedid);
-                    var found = false;
-                    for (var idx = 0; idx < pageStack.depth; ++idx) {
-                        if (pageStack.get(idx) == itemPage) {
-                            found = true;
-                            console.log("Found itemPage in stack");
-                            break;
-                        }
-                    }
+            required property int index
+            required property string feedId
+            required property string title
+            required property string link
+            required property string faviconLink
 
-                    if (!found) {
-                        pageStack.push(itemPage)
-                    }
-                    itemPage.feedTitle = feedtitle
-                }
+            leading: Image {
+                source: delegate.faviconLink
+                width: height
             }
 
-            label: feedtitle
+            onClicked: if (!NewsInterface.busy) {
+                NewsInterface.viewItems(delegate.feedId);
+                applicationWindow().pageStack.push("qrc:/qml/pages/ItemPage.qml", {
+                    title: title,
+                });
+            }
+
+            label: title
             bold: true
-            subtitle: feedurl
-            icon: feedicon
+            subtitle: link
         }
     }
 }
