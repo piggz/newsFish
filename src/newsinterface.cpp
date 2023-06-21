@@ -32,7 +32,8 @@ NewsInterface::NewsInterface(QObject *parent)
     if (QDir().mkpath(QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)))) {
         qCritical() << "Couldn't create directory for cache database";
     }
-    const auto path = QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/") + qGuiApp->applicationName());
+    const auto path = QDir::cleanPath(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QLatin1Char('/') + qGuiApp->applicationName()
+                                      + QStringLiteral(".sqlite"));
     qDebug() << "Storing cache in" << path;
     m_db.setDatabaseName(path);
 

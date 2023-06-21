@@ -53,6 +53,7 @@ find_package(KF${QT_MAJOR_VERSION}KirigamiAddons 0.8.0 REQUIRED)
 
 if (NOT ANDROID AND NOT SAILFISHOS)
     find_package(KF${QT_MAJOR_VERSION}QQC2DesktopStyle REQUIRED)
+    find_package(KF${QT_MAJOR_VERSION}DBusAddons REQUIRED)
     find_package(Qt${QT_MAJOR_VERSION}Svg REQUIRED)
     find_package(Qt${QT_MAJOR_VERSION}Keychain)
     set_package_properties(Qt${QT_MAJOR_VERSION}Keychain PROPERTIES

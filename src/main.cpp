@@ -45,6 +45,10 @@
 #include <QApplication>
 #endif
 
+#ifndef Q_OS_ANDROID
+#include <KDBusService>
+#endif
+
 #ifdef Q_OS_ANDROID
 Q_DECL_EXPORT
 #endif
@@ -79,6 +83,10 @@ int main(int argc, char *argv[])
 
     KAboutData::setApplicationData(about);
     QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("uk.co.piggz.newsfish")));
+
+#ifndef Q_OS_ANDROID
+    KDBusService service(KDBusService::Unique);
+#endif
 
     qmlRegisterSingletonType<Helper>("uk.co.piggz", 1, 0, "Helper", [](QQmlEngine *, QJSEngine *) {
         return new Helper;

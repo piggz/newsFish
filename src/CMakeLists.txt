@@ -53,7 +53,7 @@ if(ANDROID)
     )
 else()
     if(NOT SAILFISHOS)
-        target_link_libraries(newsfish_static PUBLIC Qt::Widgets)
+        target_link_libraries(newsfish_static PUBLIC Qt::Widgets KF${QT_MAJOR_VERSION}::DBusAddons)
     endif()
 endif()
 
