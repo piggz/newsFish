@@ -56,7 +56,7 @@ Kirigami.ScrollablePage {
                     Layout.fillWidth: true
                     text: delegate.itemtitle
                     font.pointSize: Math.round(Kirigami.Theme.defaultFont.pointSize * 1)
-                    font.weight: Font.Medium
+                    font.bold: true
                     wrapMode: Text.Wrap
                     elide: Text.ElideRight
                     maximumLineCount: 3
