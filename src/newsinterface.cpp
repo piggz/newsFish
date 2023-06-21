@@ -118,8 +118,6 @@ void NewsInterface::getItems(int feedId)
     auto reply = m_networkManager->get(r);
     connect(reply, &QNetworkReply::finished, this, [this, reply, feedId]() {
         m_itemsModel->parseItems(QString::number(feedId), reply->readAll());
-        m_busy = false;
-        Q_EMIT busyChanged(m_busy);
 
         syncNextFeed();
     });

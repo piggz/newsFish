@@ -42,8 +42,8 @@
 #if defined(Q_OS_ANDROID) || defined(Q_OS_SAILFISHOS)
 #include <QGuiApplication>
 #else
-#include <QApplication>
 #include <KDBusService>
+#include <QApplication>
 #endif
 
 #ifdef Q_OS_ANDROID
