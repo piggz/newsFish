@@ -15,11 +15,10 @@ Kirigami.ApplicationWindow {
         defaultColumnWidth: Kirigami.Units.gridUnit * 20
         globalToolBar {
             style: Kirigami.ApplicationHeaderStyle.ToolBar
-            showNavigationButtons: if (applicationWindow().pageStack.currentIndex > 0
-                || applicationWindow().pageStack.currentIndex > 0) {
-                Kirigami.ApplicationHeaderStyle.ShowBackButton
+            showNavigationButtons: if (root.pageStack.currentIndex > 0 || root.pageStack.layers.currentIndex > 0) {
+                return Kirigami.ApplicationHeaderStyle.ShowBackButton
             } else {
-                0
+                return 0
             }
         }
     }
@@ -30,7 +29,7 @@ Kirigami.ApplicationWindow {
             text: i18nc("@action:button", "Settings")
             icon.name: "configure"
             onTriggered: {
-                pageStack.replace( Qt.resolvedUrl("pages/SettingsPage.qml") )
+                root.pageStack.pushDialogLayer(Qt.resolvedUrl("pages/SettingsPage.qml"))
             }
         }
     }

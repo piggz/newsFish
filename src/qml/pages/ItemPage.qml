@@ -43,6 +43,10 @@ Kirigami.ScrollablePage {
                 NewsInterface.setItemRead(itemid, true);
 
                 ListView.view.currentIndex = index;
+
+                // Hack force navigation to the next page on desktop
+                applicationWindow().pageStack.currentIndex = 1
+                applicationWindow().pageStack.currentIndex = 2
             }
 
             contentItem: ColumnLayout {
