@@ -11,6 +11,9 @@ import uk.co.piggz 1.0
 
 Kirigami.ScrollablePage {
     id: page
+
+    property bool initial: false
+
     title: i18n("News Fish for Nextcloud")
 
     leftPadding: 0
@@ -65,7 +68,11 @@ Kirigami.ScrollablePage {
 
                         saveSettings();
 
-                        pageStack.replace(Qt.resolvedUrl("FeedPage.qml"))
+                        if (page.initial) {
+                            applicationWindow().pageStack.replace(Qt.resolvedUrl("FeedPage.qml"))
+                        } else {
+                            page.closeDialog();
+                        }
                     }
                 }
             }

@@ -45,9 +45,11 @@ Kirigami.ApplicationWindow {
         NewsInterface.password = _password;
 
         if (!_ownCloudURL || !_username || !_password) {
-            pageStack.push( Qt.resolvedUrl("pages/SettingsPage.qml") )
+            pageStack.push(Qt.resolvedUrl("pages/SettingsPage.qml"), {
+                initial: true
+            })
         } else {
-            pageStack.push( Qt.resolvedUrl("pages/FeedPage.qml") )
+            pageStack.push(Qt.resolvedUrl("pages/FeedPage.qml"))
         }
     }
 
