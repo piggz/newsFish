@@ -43,9 +43,6 @@
 #include <QGuiApplication>
 #else
 #include <QApplication>
-#endif
-
-#ifndef Q_OS_ANDROID
 #include <KDBusService>
 #endif
 
@@ -84,7 +81,7 @@ int main(int argc, char *argv[])
     KAboutData::setApplicationData(about);
     QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("uk.co.piggz.newsfish")));
 
-#ifndef Q_OS_ANDROID
+#if !(defined(Q_OS_ANDROID) || defined(Q_OS_SAILFISHOS))
     KDBusService service(KDBusService::Unique);
 #endif
 
