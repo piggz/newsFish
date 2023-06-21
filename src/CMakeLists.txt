@@ -16,7 +16,6 @@ target_sources(newsfish_static PRIVATE
     Helper.cpp
     feedsmodel.cpp
     itemsmodel.cpp
-    itemworker.cpp
     main.cpp
     newsinterface.cpp
 )
@@ -54,7 +53,7 @@ if(ANDROID)
     )
 else()
     if(NOT SAILFISHOS)
-        target_link_libraries(newsfish_static PUBLIC Qt::Widgets)
+        target_link_libraries(newsfish_static PUBLIC Qt::Widgets KF${QT_MAJOR_VERSION}::DBusAddons)
     endif()
 endif()
 

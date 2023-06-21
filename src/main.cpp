@@ -31,8 +31,6 @@
 // #include <sailfishapp.h>
 #include "../newsfish-version.h"
 #include "Helper.h"
-#include "feedsmodel.h"
-#include "itemsmodel.h"
 #include "newsinterface.h"
 #include <KAboutData>
 #include <KLocalizedContext>
@@ -45,6 +43,10 @@
 #include <QGuiApplication>
 #else
 #include <QApplication>
+#endif
+
+#ifndef Q_OS_ANDROID
+#include <KDBusService>
 #endif
 
 #ifdef Q_OS_ANDROID
@@ -82,8 +84,10 @@ int main(int argc, char *argv[])
     KAboutData::setApplicationData(about);
     QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("uk.co.piggz.newsfish")));
 
-    qmlRegisterType<FeedsModel>("uk.co.piggz", 1, 0, "FeedsModel");
-    qmlRegisterType<ItemsModel>("uk.co.piggz", 1, 0, "ItemsModel");
+#ifndef Q_OS_ANDROID
+    KDBusService service(KDBusService::Unique);
+#endif
+
     qmlRegisterSingletonType<Helper>("uk.co.piggz", 1, 0, "Helper", [](QQmlEngine *, QJSEngine *) {
         return new Helper;
     });

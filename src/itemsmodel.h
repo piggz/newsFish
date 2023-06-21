@@ -4,10 +4,15 @@
 #include <QDateTime>
 #include <QList>
 #include <QSqlDatabase>
+#include <qsqldatabase.h>
 
 class ItemsModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    /// The if of feed that this ItemsModel will display
+    Q_PROPERTY(int feedId READ feedId WRITE setFeedId NOTIFY feedIdChanged)
+
 public:
     enum Roles {
         ItemId = Qt::UserRole + 1,
@@ -16,7 +21,6 @@ public:
         ItemGUID,
         ItemGUIDHash,
         ItemBody,
-        ItemBodyHTML,
         ItemLink,
         ItemAuthor,
         ItemPubDate,
@@ -24,20 +28,23 @@ public:
         ItemStarred
     };
 
-    explicit ItemsModel(QObject *parent = nullptr);
+    explicit ItemsModel(const QSqlDatabase &db, QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = {}) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    void parseItems(const QByteArray &json);
+    int feedId() const;
+    void setFeedId(int feedId);
+
+    void parseItems(const QString &feedId, const QByteArray &json);
     void setDatabase(const QString &dbname);
-    void setFeed(int feedId);
     void recreateTable();
-    void deleteOldData(int days);
+    void setItemRead(int itemId, bool read);
 
 Q_SIGNALS:
     void feedParseComplete();
+    void feedIdChanged();
 
 private Q_SLOTS:
     void slotWorkerFinished();
@@ -50,18 +57,20 @@ private:
         QString guid;
         QString guidHash;
         QString body;
-        QString bodyHtml;
         QString link;
         QString author;
         QDateTime publishDate;
         bool unread;
         bool starred;
+
+        static Item fromJson(const QJsonObject &object);
+        void cacheInDatabase(QSqlDatabase database) const;
     };
 
     QList<Item> m_items;
+    int m_feedId;
 
     QSqlDatabase m_db;
-    QString m_databaseName;
 };
 
 Q_DECLARE_METATYPE(ItemsModel *);

@@ -1,95 +1,61 @@
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15 as Controls
 import org.kde.kirigami 2.20 as Kirigami
 import uk.co.piggz 1.0
 
 Kirigami.ScrollablePage {
-    id: itemView
+    id: root
 
-    property string ititle: ""
-    property string body: ""
-    property string link: ""
-    property string author: ""
-    property string pubdate: ""
-    property bool unread: false
-    property bool starred: false
+    required property string body
+    required property string link
+    required property string author
+    required property string pubdate
+    required property bool unread
+    required property bool starred
 
-    title: ititle
-
-    background: Rectangle {
-        color: Kirigami.Theme.backgroundColor
-        anchors.fill: parent
-    }
+    Kirigami.Theme.colorSet: Kirigami.Theme.View
+    Kirigami.Theme.inherit: false
 
     actions.main: Kirigami.Action {
         id: addAction
-        // Name of icon associated with the action
-        icon.name: "applications-internet"
-        // Action text, i18n function returns translated string
-        text: "Open in Browser"
-        // What to do when triggering the action
+        icon.name: "globe"
+        text: i18n("Open in Browser")
         onTriggered: Qt.openUrlExternally(link)
     }
 
+    ColumnLayout {
+        Kirigami.Heading {
+            text: root.author
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+            type: Kirigami.Heading.Primary
+            visible: text.length > 0
+        }
 
-    Column {
-        id:column
-        width: parent.width
-
-        Item {
-            id: authorRow
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            height: childrenRect.height
-            anchors.margins: 5
-            Controls.Label {
-                id: txtAuthor
-                text: author
-                anchors.left: parent.left
-                width: parent.width / 2
-                clip: true
-                wrapMode: Text.WordWrap
-                font.bold: true
-            }
-
-            Controls.Label {
-                id: txtPubDate
-                text: pubdate
-                anchors.right: parent.right
-                width: parent.width / 2
-                clip: true
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignRight
-            }
+        Kirigami.Heading {
+            text: root.pubdate
+            wrapMode: Text.WordWrap
+            opacity: 0.8
+            level: 3
+            Layout.fillWidth: true
+            visible: text.length > 0
         }
 
         Controls.Label {
+            text: Helper.adjustedContent(width, font.pixelSize, root.body)
 
-            id: txtBody
-            text: "<html>" + strip_tags(body, "<a><b><p><strong><em><i>") + "</html>"
+            onWidthChanged: text = Helper.adjustedContent(width, font.pixelSize, root.body)
             textFormat: Text.RichText
-            font.pointSize: 12
-            wrapMode: Text.Wrap
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.margins: 5
+            font.pixelSize: Kirigami.Theme.defaultFont.pixelSize + 2
+            wrapMode: Text.WordWrap
 
-            onLinkActivated: {
-                console.log(link, ".activated");
-                Qt.openUrlExternally(link);
-            }
+            leftPadding: 0
+            rightPadding: 0
 
-            function strip_tags (input, allowed) {
-                allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
-                var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
-                commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
-                return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
-                    return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
-                });
-            }
+            Layout.fillWidth: true
+
+            onLinkActivated: Qt.openUrlExternally(link);
         }
     }
-
 }
-
