@@ -119,6 +119,8 @@ void NewsInterface::getItems(int feedId)
         m_itemsModel->parseItems(reply->readAll());
         m_busy = false;
         Q_EMIT busyChanged(m_busy);
+
+        syncNextFeed();
     });
 
     connect(reply, &QNetworkReply::sslErrors, this, [reply](const QList<QSslError> &) {
