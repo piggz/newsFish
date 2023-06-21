@@ -30,6 +30,7 @@ Kirigami.ScrollablePage {
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
             type: Kirigami.Heading.Primary
+            visible: text.length > 0
         }
 
         Kirigami.Heading {
@@ -38,6 +39,7 @@ Kirigami.ScrollablePage {
             opacity: 0.8
             level: 3
             Layout.fillWidth: true
+            visible: text.length > 0
         }
 
         Controls.Label {
