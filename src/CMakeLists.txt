@@ -16,7 +16,6 @@ target_sources(newsfish_static PRIVATE
     Helper.cpp
     feedsmodel.cpp
     itemsmodel.cpp
-    itemworker.cpp
     main.cpp
     newsinterface.cpp
 )

@@ -115,8 +115,8 @@ void NewsInterface::getItems(int feedId)
     addAuthHeader(&r);
 
     auto reply = m_networkManager->get(r);
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        m_itemsModel->parseItems(reply->readAll());
+    connect(reply, &QNetworkReply::finished, this, [this, reply, feedId]() {
+        m_itemsModel->parseItems(QString::number(feedId), reply->readAll());
         m_busy = false;
         Q_EMIT busyChanged(m_busy);
 
@@ -138,7 +138,6 @@ void NewsInterface::syncNextFeed()
         return;
     }
 
-    m_itemsModel->deleteOldData(m_daysToRetain);
     m_busy = false;
     Q_EMIT busyChanged(m_busy);
 }
@@ -157,12 +156,6 @@ bool NewsInterface::isBusy() const
 {
     qDebug() << "Busy: " << m_busy;
     return m_busy;
-}
-
-void NewsInterface::viewItems(int feedId)
-{
-    qDebug() << "Viewing feed" << feedId;
-    m_itemsModel->setFeed(feedId);
 }
 
 void NewsInterface::recreateDatabase()

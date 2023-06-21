@@ -60,7 +60,7 @@ Kirigami.ScrollablePage {
             }
 
             onClicked: if (!NewsInterface.busy) {
-                NewsInterface.viewItems(delegate.feedId);
+                NewsInterface.itemsModel.feedId = delegate.feedId;
                 applicationWindow().pageStack.push("qrc:/qml/pages/ItemPage.qml", {
                     title: title,
                 });

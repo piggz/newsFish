@@ -32,7 +32,6 @@ public:
     ItemsModel *itemsModel() const;
 
     Q_INVOKABLE void sync();
-    Q_INVOKABLE void viewItems(int feedId);
     Q_INVOKABLE void recreateDatabase();
     Q_INVOKABLE void setItemRead(long itemId, bool read);
     Q_INVOKABLE void setItemStarred(int feedId, const QString &itemGUIDHash, bool starred);

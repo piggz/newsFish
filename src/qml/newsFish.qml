@@ -61,27 +61,27 @@ Kirigami.ApplicationWindow {
         var elapsed = current - previous;
 
         if (elapsed < msPerMinute) {
-            return Math.round(elapsed/1000) + ' seconds ago';
+            return i18n("%1 seconds ago", Math.round(elapsed/1000));
         }
 
         else if (elapsed < msPerHour) {
-            return Math.round(elapsed/msPerMinute) + ' minutes ago';
+            return i18n("%1 minutes ago", Math.round(elapsed/msPerMinute));
         }
 
         else if (elapsed < msPerDay ) {
-            return Math.round(elapsed/msPerHour ) + ' hours ago';
+            return i18n("%1 hours ago", Math.round(elapsed/msPerHour));
         }
 
         else if (elapsed < msPerMonth) {
-            return 'approximately ' + Math.round(elapsed/msPerDay) + ' days ago';
+            return i18n("Approximately %1 days ago", Math.round(elapsed / msPerDay));
         }
 
         else if (elapsed < msPerYear) {
-            return 'approximately ' + Math.round(elapsed/msPerMonth) + ' months ago';
+            return i18n("Approximately %1 months ago", Math.round(elapsed / msPerMonth));
         }
 
         else {
-            return 'approximately ' + Math.round(elapsed/msPerYear ) + ' years ago';
+            return i18n("Approximately %1 years ago", Math.round(elapsed / msPerYear));
         }
     }
 }

@@ -18,8 +18,8 @@ Kirigami.ScrollablePage {
             required property string itemid
             required property string itemtitle
             required property string itemauthor
-            required property string itembodyhtml
             required property string itemlink
+            required property string itembody
             required property date itempubdate
             required property bool itemunread
             required property bool itemstarred
@@ -32,7 +32,7 @@ Kirigami.ScrollablePage {
             onClicked: {
                 applicationWindow().pageStack.push("qrc:/qml/pages/ItemView.qml", {
                     title: itemtitle,
-                    body: itembodyhtml,
+                    body: itembody,
                     link: itemlink,
                     author: itemauthor,
                     pubdate: timeDifference(new Date(), itempubdate),
