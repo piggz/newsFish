@@ -54,13 +54,13 @@ Kirigami.ApplicationWindow {
     }
 
     function timeDifference(current, previous) {
-        var msPerMinute = 60 * 1000;
-        var msPerHour = msPerMinute * 60;
-        var msPerDay = msPerHour * 24;
-        var msPerMonth = msPerDay * 30;
-        var msPerYear = msPerDay * 365;
+        const msPerMinute = 60 * 1000;
+        const msPerHour = msPerMinute * 60;
+        const msPerDay = msPerHour * 24;
+        const msPerMonth = msPerDay * 30;
+        const msPerYear = msPerDay * 365;
 
-        var elapsed = current - previous;
+        const elapsed = current - previous;
 
         if (elapsed < msPerMinute) {
             return i18n("%1 seconds ago", Math.round(elapsed/1000));
